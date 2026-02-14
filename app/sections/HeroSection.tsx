@@ -34,6 +34,10 @@ function CountdownUnit({ value, label, labelEn }: { value: number; label: string
 
 export default function HeroSection({ location }: HeroSectionProps) {
   const { days, hours, minutes, seconds, isRamadan, daysUntilRamadan, daysInRamadan, hijriDate, loading } = useCountdown();
+  const greetingText = isRamadan
+    ? "Selamat Menunaikan Ibadah Puasa"
+    : "Bersedia Menyambut Ramadan";
+  const subGreetingText = isRamadan ? "Ramadan Al-Mubarak" : "Marhaban Ya Ramadan";
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 py-20 batik-pattern">
@@ -48,7 +52,7 @@ export default function HeroSection({ location }: HeroSectionProps) {
         className="mb-4 text-center"
       >
         <p className="text-lg text-[#FFD54F] font-[family-name:var(--font-poppins)] mb-2">
-          Selamat Menyambut Ramadan
+          {greetingText}
         </p>
         {location?.city && (
           <p className="text-sm text-[#FFF8E1]/50">
@@ -71,7 +75,7 @@ export default function HeroSection({ location }: HeroSectionProps) {
           رمضان كريم
         </h1>
         <p className="text-xl md:text-2xl text-[#FFD54F] text-center mt-4 font-[family-name:var(--font-poppins)]">
-          Ramadan Al-Mubarak
+          {subGreetingText}
         </p>
       </motion.div>
 

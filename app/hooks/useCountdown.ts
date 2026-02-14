@@ -13,17 +13,40 @@ interface CountdownResult {
   totalRamadanDays: number;
   hijriDate: string;
   loading: boolean;
-  error: string | null;
+}
+
+const MALAYSIA_TIMEZONE = "Asia/Kuala_Lumpur";
+
+function getMalaysiaDateString(): string {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: MALAYSIA_TIMEZONE,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).formatToParts(new Date());
+
+  const day = parts.find((p) => p.type === "day")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const year = parts.find((p) => p.type === "year")?.value;
+
+  if (!day || !month || !year) {
+    return "";
+  }
+
+  return `${day}-${month}-${year}`;
 }
 
 // Fetch Hijri date from Aladhan API
 async function fetchHijriDate(): Promise<{
-  hijri: { month: { number: number }; day: number; year: string };
+  hijri: { month: { number: number; en: string }; day: number; year: string };
   gregorian: { date: string };
 } | null> {
   try {
-    const today = new Date();
-    const dateStr = today.toISOString().split("T")[0];
+    const dateStr = getMalaysiaDateString();
+
+    if (!dateStr) {
+      return null;
+    }
 
     const response = await fetch(
       `https://api.aladhan.com/v1/gToH/${dateStr}`
@@ -36,7 +59,7 @@ async function fetchHijriDate(): Promise<{
 
     const data = await response.json();
     return data.data;
-  } catch (err) {
+  } catch {
     // Silently fail - don't log error to console
     return null;
   }
@@ -54,11 +77,11 @@ export function useCountdown(): CountdownResult {
   const [now, setNow] = useState<Date | null>(null);
   const [hijriInfo, setHijriInfo] = useState<{
     month: number;
+    monthName: string;
     day: number;
     year: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Fetch Hijri date on mount
   useEffect(() => {
@@ -70,15 +93,13 @@ export function useCountdown(): CountdownResult {
         if (!cancelled && data) {
           setHijriInfo({
             month: data.hijri.month.number,
+            monthName: data.hijri.month.en,
             day: data.hijri.day,
             year: data.hijri.year,
           });
         }
-      } catch (err) {
-        if (!cancelled) {
-          console.error("Error fetching Hijri date:", err);
-          // Don't show error to user, just don't show Hijri date
-        }
+      } catch {
+        // Don't show error to user, just don't show Hijri date
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -137,8 +158,11 @@ export function useCountdown(): CountdownResult {
     const ramadanStart = new Date(thisYearRamadan.start);
     const ramadanEnd = new Date(thisYearRamadan.end);
 
-    // Check if we're in Ramadan
-    const isRamadan = now >= ramadanStart && now <= ramadanEnd;
+    // Approximation based on Gregorian date windows
+    const isRamadanByGregorian = now >= ramadanStart && now <= ramadanEnd;
+    // Malaysia-suitable source of truth using Hijri month from Aladhan
+    const isRamadanByHijri = hijriInfo?.month === 9;
+    const isRamadan = hijriInfo ? Boolean(isRamadanByHijri) : isRamadanByGregorian;
 
     let targetDate: Date;
     let daysUntilRamadan = 0;
@@ -149,7 +173,9 @@ export function useCountdown(): CountdownResult {
       targetDate = new Date(ramadanEnd);
       targetDate.setDate(targetDate.getDate() + 1); // Day after last day of Ramadan
       const diffFromStart = now.getTime() - ramadanStart.getTime();
-      daysInRamadan = Math.floor(diffFromStart / (1000 * 60 * 60 * 24)) + 1;
+      daysInRamadan = isRamadanByHijri
+        ? (hijriInfo?.day ?? 1)
+        : Math.floor(diffFromStart / (1000 * 60 * 60 * 24)) + 1;
     } else if (now < ramadanStart) {
       // Before Ramadan
       targetDate = ramadanStart;
@@ -183,7 +209,7 @@ export function useCountdown(): CountdownResult {
       totalRamadanDays: 30,
       targetDate,
     };
-  }, [now]);
+  }, [hijriInfo, now]);
 
   const status = calculateRamadanStatus();
 
@@ -197,9 +223,8 @@ export function useCountdown(): CountdownResult {
     daysInRamadan: status.daysInRamadan,
     totalRamadanDays: status.totalRamadanDays,
     hijriDate: hijriInfo
-      ? `${hijriInfo.day} Ramadan ${hijriInfo.year}`
+      ? `${hijriInfo.day} ${hijriInfo.monthName} ${hijriInfo.year}`
       : "",
     loading,
-    error,
   };
 }

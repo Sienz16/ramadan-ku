@@ -48,56 +48,30 @@ export default function TasbeehSection() {
   const [currentCount, setCurrentCount] = useState(0);
   // Track completed rounds
   const [completedRounds, setCompletedRounds] = useState(0);
-  const [beads, setBeads] = useState<boolean[]>(new Array(33).fill(false));
-  const [justCompleted, setJustCompleted] = useState(false);
 
   const handleCount = () => {
-    if (justCompleted) {
-      // Starting a new round
-      setCurrentCount(1);
-      setJustCompleted(false);
-      const newBeads = new Array(33).fill(false);
-      newBeads[0] = true;
-      setBeads(newBeads);
-    } else if (currentCount === 33) {
-      // Complete current round and prepare for next
-      setCompletedRounds((prev) => prev + 1);
-      setJustCompleted(true);
-      setCurrentCount(33); // Keep showing 33 until next click
-      // Clear beads with delay for visual effect
-      setTimeout(() => {
-        setBeads(new Array(33).fill(false));
-      }, 300);
-    } else {
-      // Normal increment
-      const newCount = currentCount + 1;
-      setCurrentCount(newCount);
-
-      // Update beads
-      const newBeads = [...beads];
-      newBeads[newCount - 1] = true;
-      setBeads(newBeads);
-
-      // Check if just completed a round
-      if (newCount === 33) {
-        setJustCompleted(true);
-        setTimeout(() => {
-          setBeads(new Array(33).fill(false));
-        }, 300);
-      }
+    if (currentCount === 32) {
+      setCurrentCount(33);
+      setCompletedRounds((rounds) => rounds + 1);
+      return;
     }
+
+    if (currentCount === 33) {
+      setCurrentCount(1);
+      return;
+    }
+
+    setCurrentCount((prev) => prev + 1);
   };
 
   const reset = () => {
     setCurrentCount(0);
     setCompletedRounds(0);
-    setJustCompleted(false);
-    setBeads(new Array(33).fill(false));
   };
 
   // Calculate display values
-  const displayCount = justCompleted ? 33 : currentCount;
-  const displayProgress = justCompleted
+  const displayCount = currentCount;
+  const displayProgress = currentCount === 33
     ? "33 / 33 - Klik untuk seterusnya"
     : `${currentCount} / 33`;
 
@@ -180,7 +154,10 @@ export default function TasbeehSection() {
 
         {/* Beads Visualization */}
         <div className="flex justify-center flex-wrap gap-1.5 mb-8 max-w-xs mx-auto px-4">
-          {beads.map((filled, index) => (
+          {Array.from({ length: 33 }, (_, index) => {
+            const filled = index < currentCount;
+
+            return (
             <motion.div
               key={index}
               initial={false}
@@ -191,7 +168,8 @@ export default function TasbeehSection() {
               transition={{ duration: 0.2 }}
               className="w-3 h-3 rounded-full"
             />
-          ))}
+            );
+          })}
         </div>
 
         {/* Progress Text */}
@@ -209,12 +187,12 @@ export default function TasbeehSection() {
             whileTap={{ scale: 0.95 }}
             onClick={handleCount}
             className={`w-36 h-36 rounded-full font-bold text-xl shadow-[0_0_40px_rgba(255,179,0,0.3)] hover:shadow-[0_0_60px_rgba(255,179,0,0.5)] transition-all font-[family-name:var(--font-poppins)] ${
-              justCompleted
+              currentCount === 33
                 ? "bg-gradient-to-br from-[#FFD54F] to-[#FFB300] text-[#004D40] animate-pulse"
                 : "bg-gradient-to-br from-[#FFB300] to-[#FFA000] text-[#004D40]"
             }`}
           >
-            {justCompleted ? "Seterusnya →" : "Kira"}
+            {currentCount === 33 ? "Seterusnya →" : "Kira"}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
