@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ramadan Ku
+
+Ramadan Ku is a Malaysia-focused Ramadan companion web app built with Next.js. It helps users follow daily worship routines with location-aware prayer times, Ramadan countdowns, daily duas, Quran verses, and a digital tasbeeh.
+
+## Highlights
+
+- Malaysia-first experience with geolocation and manual city/state selection
+- Prayer times powered by Aladhan API with next-prayer and time-remaining indicators
+- Ramadan status panel with live countdown and Hijri date display
+- Suhoor and iftar section based on Fajr and Maghrib timings
+- Daily dua and daily Quran verse cards (Arabic, transliteration/translation)
+- Built-in digital tasbeeh counter (33-count rounds)
+- Mobile-first UI with animations and PWA metadata/manifest support
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Framer Motion
+
+## Project Structure
+
+- `app/page.tsx` - Main page composition and location flow
+- `app/sections/*` - Feature sections (Hero, Prayer Times, Suhoor/Iftar, Dua, Quran, Tasbeeh)
+- `app/hooks/*` - Client hooks for location, prayer times, and Ramadan countdown logic
+- `app/data/*` - Static dua and Quran verse datasets
+- `public/manifest.json` - PWA manifest
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+ (recommended)
+- npm, pnpm, yarn, or bun
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Run in development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## Available Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` - Start development server
+- `npm run build` - Build production bundle
+- `npm run start` - Run production server
+- `npm run lint` - Run ESLint
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Data Sources and Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Prayer times and Hijri conversion use [Aladhan API](https://aladhan.com/prayer-times-api).
+- Ramadan date windows are currently hardcoded for 2025-2028 in `app/hooks/useCountdown.ts`.
+- No backend is required; app behavior is primarily client-side.
 
-## Deploy on Vercel
+## Localization
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The interface is primarily in Bahasa Melayu with Arabic and English support in selected UI labels and content.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+This app can be deployed to Vercel or any Node-compatible hosting that supports Next.js.
