@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { getInstallAvailability, isIosDevice } from "../lib/installPrompt";
+import { getInstallAvailability, isChromiumDevice, isIosDevice } from "../lib/installPrompt";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -31,6 +31,13 @@ export default function InstallAppSection() {
 
     return isIosDevice(window.navigator.userAgent);
   });
+  const [isChromium] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    return isChromiumDevice(window.navigator.userAgent);
+  });
   const [feedback, setFeedback] = useState<string>("");
 
   useEffect(() => {
@@ -52,8 +59,9 @@ export default function InstallAppSection() {
         hasDeferredPrompt: Boolean(deferredPrompt),
         isIos,
         isStandalone,
+        isChromium,
       }),
-    [deferredPrompt, isIos, isStandalone]
+    [deferredPrompt, isIos, isStandalone, isChromium]
   );
 
   const handleInstall = async () => {
@@ -112,6 +120,23 @@ export default function InstallAppSection() {
               Untuk iPhone/iPad: buka menu <span className="text-[#FFD54F]">Share</span>, kemudian pilih
               <span className="text-[#FFD54F]"> Add to Home Screen</span>.
             </p>
+          )}
+
+          {availability === "chromium-manual" && (
+            <div className="text-[#FFF8E1]/75 text-sm md:text-base leading-relaxed space-y-2">
+              <p className="text-[#FFD54F] font-semibold">Desktop</p>
+              <p>
+                Klik ikon Install App di kanan address bar, atau menu (⋮) - Install RamadanKu.
+                <br />
+                Click the Install App icon on the right side of the address bar, or menu (⋮) - Install RamadanKu.
+              </p>
+              <p className="text-[#FFD54F] font-semibold pt-1">Mobile</p>
+              <p>
+                Buka menu (⋮) - Add to Home screen.
+                <br />
+                Open menu (⋮) - Add to Home screen.
+              </p>
+            </div>
           )}
 
           {availability === "unsupported" && (
