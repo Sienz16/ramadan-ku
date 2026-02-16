@@ -31,4 +31,15 @@ describe("getInstallAvailability", () => {
       })
     ).toBe("installed");
   });
+
+  test("uses chromium manual instruction when no deferred event", () => {
+    expect(
+      getInstallAvailability({
+        hasDeferredPrompt: false,
+        isIos: false,
+        isStandalone: false,
+        isChromium: true,
+      })
+    ).toBe("chromium-manual");
+  });
 });

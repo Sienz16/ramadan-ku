@@ -1,4 +1,4 @@
-const CACHE_NAME = "ramadanku-v1";
+const CACHE_NAME = "ramadanku-v2";
 const OFFLINE_ASSETS = ["/", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -20,11 +20,25 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  const requestUrl = new URL(event.request.url);
+
+  // Ignore browser/extension schemes and non-origin requests
+  if (!requestUrl.protocol.startsWith("http")) {
+    return;
+  }
+
+  if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
         const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        caches
+          .open(CACHE_NAME)
+          .then((cache) => cache.put(event.request, copy))
+          .catch(() => undefined);
         return response;
       })
       .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/")))
