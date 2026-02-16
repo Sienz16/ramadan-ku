@@ -45,7 +45,33 @@ export default function PrayerTimesSection({ location }: PrayerTimesSectionProps
   );
 
   if (!location) {
-    return null;
+    return (
+      <section className="relative py-16 px-6 sm:px-8 lg:px-16 xl:px-24 batik-pattern">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-6xl mx-auto"
+        >
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-[#FFB300] font-[family-name:var(--font-poppins)] mb-1">
+              Waktu Solat
+            </h2>
+            <p className="text-[#FFF8E1]/50 text-xs">Prayer Times</p>
+          </div>
+
+          <div className="max-w-2xl mx-auto rounded-2xl border border-[#FFB300]/25 bg-[#004D40]/35 px-6 py-8 text-center">
+            <p className="text-[#FFF8E1] font-[family-name:var(--font-poppins)]">
+              Lokasi belum dipilih. Sila pilih lokasi untuk melihat waktu solat yang tepat.
+            </p>
+            <p className="text-[#FFF8E1]/55 text-sm mt-2">
+              Your location is not configured yet. Please select your area first.
+            </p>
+          </div>
+        </motion.div>
+      </section>
+    );
   }
 
   // Get current prayer (if any) and next prayer info

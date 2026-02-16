@@ -33,7 +33,27 @@ export default function SuhoorIftarSection({ location }: SuhoorIftarSectionProps
   const maghribTime = prayers.find((p) => p.name === "Maghrib")?.time12h;
 
   if (!location) {
-    return null;
+    return (
+      <section className="relative py-20 px-6 sm:px-8 lg:px-16 xl:px-24 batik-pattern">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-6xl mx-auto text-center"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-[#FFB300] font-[family-name:var(--font-poppins)] mb-4">
+            Sahur & Berbuka
+          </h2>
+          <p className="text-[#FFF8E1]/70 mb-2">Suhoor & Iftar</p>
+          <p className="text-[#FFF8E1]/55 font-[family-name:var(--font-poppins)]">
+            Lokasi belum ditetapkan. Pilih lokasi supaya waktu sahur dan berbuka dapat dipaparkan.
+          </p>
+          <p className="text-[#FFF8E1]/40 text-sm mt-2">
+            Your location is not configured yet. Please pick a location first.
+          </p>
+        </motion.div>
+      </section>
+    );
   }
 
   if (!isRamadan) {
