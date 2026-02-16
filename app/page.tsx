@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Starfield from "./components/Starfield";
+import PwaRegistrar from "./components/PwaRegistrar";
 import Footer from "./components/Footer";
 import LocationSelector from "./components/LocationSelector";
 import HeroSection from "./sections/HeroSection";
@@ -10,6 +11,7 @@ import SuhoorIftarSection from "./sections/SuhoorIftarSection";
 import DailyDuaSection from "./sections/DailyDuaSection";
 import DailyQuranSection from "./sections/DailyQuranSection";
 import TasbeehSection from "./sections/TasbeehSection";
+import InstallAppSection from "./sections/InstallAppSection";
 import { useLocation } from "./hooks/useLocation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,6 +21,7 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen overflow-hidden">
+      <PwaRegistrar />
       {/* Background */}
       <Starfield />
 
@@ -90,6 +93,7 @@ export default function Home() {
               <DailyDuaSection />
               <DailyQuranSection />
               <TasbeehSection />
+              <InstallAppSection />
               <Footer />
             </motion.div>
           )}
