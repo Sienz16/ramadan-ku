@@ -2,6 +2,14 @@
 
 import { motion } from "framer-motion";
 
+const moonStars = [
+  { top: 24, left: 18, duration: 2.0, delay: 0.0 },
+  { top: 36, left: 72, duration: 2.5, delay: 0.3 },
+  { top: 54, left: 28, duration: 3.0, delay: 0.6 },
+  { top: 62, left: 64, duration: 3.5, delay: 0.9 },
+  { top: 76, left: 44, duration: 4.0, delay: 1.2 },
+];
+
 export default function CrescentMoon() {
   return (
     <motion.div
@@ -59,22 +67,22 @@ export default function CrescentMoon() {
       </svg>
 
       {/* Decorative stars around moon */}
-      {[...Array(5)].map((_, i) => (
+      {moonStars.map((star, index) => (
         <motion.div
-          key={i}
+          key={index}
           className="absolute w-2 h-2 bg-[#FFD54F] rounded-full"
           style={{
-            top: `${20 + Math.random() * 60}%`,
-            left: `${10 + Math.random() * 80}%`,
+            top: `${star.top}%`,
+            left: `${star.left}%`,
           }}
           animate={{
             opacity: [0.3, 1, 0.3],
             scale: [0.8, 1.2, 0.8],
           }}
           transition={{
-            duration: 2 + i * 0.5,
+            duration: star.duration,
             repeat: Infinity,
-            delay: i * 0.3,
+            delay: star.delay,
           }}
         />
       ))}

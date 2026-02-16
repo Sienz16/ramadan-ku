@@ -141,7 +141,7 @@ export default function SuhoorIftarSection({ location }: SuhoorIftarSectionProps
 
                 <div className="mt-6 pt-6 border-t border-[#FFB300]/20">
                   <p className="text-[#FFF8E1]/60 text-base italic font-[family-name:var(--font-poppins)] leading-relaxed">
-                    "Bersahurlah kalian, sesungguhnya dalam sahur itu ada keberkatan."
+                    &quot;Bersahurlah kalian, sesungguhnya dalam sahur itu ada keberkatan.&quot;
                   </p>
                   <p className="text-[#FFB300]/60 text-sm mt-2">Hadis Riwayat Bukhari & Muslim</p>
                 </div>
@@ -193,7 +193,7 @@ export default function SuhoorIftarSection({ location }: SuhoorIftarSectionProps
 
                 <div className="mt-6 pt-6 border-t border-[#FFB300]/30">
                   <p className="text-[#FFF8E1]/60 text-base italic font-[family-name:var(--font-poppins)] leading-relaxed">
-                    "Orang yang berpuasa ada dua kegembiraan: gembira berbuka dan gembira bertemu Tuhannya."
+                    &quot;Orang yang berpuasa ada dua kegembiraan: gembira berbuka dan gembira bertemu Tuhannya.&quot;
                   </p>
                   <p className="text-[#FFB300]/60 text-sm mt-2">Hadis Riwayat Bukhari & Muslim</p>
                 </div>

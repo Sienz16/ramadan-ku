@@ -129,3 +129,20 @@ export function formatHijriDateFromJakim(hijri: string): string {
 
   return `${day} ${monthName} ${yearStr}`;
 }
+
+export function formatFetchMeta(input: {
+  source: string;
+  zone: string;
+  fetchedAt: Date;
+  locale?: string;
+  timeZone?: string;
+}): string {
+  const formattedTime = new Intl.DateTimeFormat(input.locale ?? "ms-MY", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: input.timeZone ?? "Asia/Kuala_Lumpur",
+  }).format(input.fetchedAt);
+
+  return `Sumber: ${input.source} | Zon: ${input.zone} | Dikemas kini: ${formattedTime}`;
+}

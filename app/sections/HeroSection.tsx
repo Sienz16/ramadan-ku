@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import CrescentMoon from "../components/CrescentMoon";
 import { useCountdown } from "../hooks/useCountdown";
 
@@ -14,6 +15,18 @@ interface HeroSectionProps {
 
 export default function HeroSection({ location }: HeroSectionProps) {
   const { days, hours, minutes, seconds, isRamadan, daysUntilRamadan, daysInRamadan, hijriDate, loading } = useCountdown(location?.zone);
+
+  const heroParticles = useMemo(
+    () =>
+      Array.from({ length: 20 }, (_, index) => ({
+        id: index,
+        left: (index * 37) % 100,
+        top: (index * 53) % 100,
+        duration: 2 + (index % 4),
+        delay: (index % 5) * 0.35,
+      })),
+    []
+  );
 
   const timeUnits = [
     { value: days, label: "Hari", labelEn: "Days" },
@@ -29,22 +42,22 @@ export default function HeroSection({ location }: HeroSectionProps) {
 
       {/* Animated stars/particles */}
       <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
+        {heroParticles.map((particle) => (
           <motion.div
-            key={i}
+            key={particle.id}
             className="absolute w-1 h-1 bg-[#FFB300] rounded-full"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${particle.left}%`,
+              top: `${particle.top}%`,
             }}
             animate={{
               opacity: [0.2, 1, 0.2],
               scale: [1, 1.5, 1],
             }}
             transition={{
-              duration: 2 + Math.random() * 3,
+              duration: particle.duration,
               repeat: Infinity,
-              delay: Math.random() * 2,
+              delay: particle.delay,
             }}
           />
         ))}
@@ -171,7 +184,7 @@ export default function HeroSection({ location }: HeroSectionProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <span className="text-[#FFD54F] text-sm md:text-base font-[family-name:var(--font-poppins)]">
-                    28 Shaaban 1447
+                    {hijriDate || "Tarikh Hijri sedang dimuatkan"}
                   </span>
                 </div>
               </motion.div>
@@ -256,7 +269,7 @@ export default function HeroSection({ location }: HeroSectionProps) {
                 مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ
               </p>
               <p className="text-[#FFF8E1]/50 text-sm md:text-base italic font-[family-name:var(--font-poppins)]">
-                "Barang siapa berpuasa di bulan Ramadan dengan iman dan mengharap pahala, dosanya yang lalu akan diampuni"
+                &quot;Barang siapa berpuasa di bulan Ramadan dengan iman dan mengharap pahala, dosanya yang lalu akan diampuni&quot;
               </p>
               <p className="text-[#FFB300]/40 text-xs mt-2">— Bukhari & Muslim</p>
             </div>

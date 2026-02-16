@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 
 interface Star {
@@ -13,22 +13,18 @@ interface Star {
 }
 
 export default function Starfield() {
-  const [stars, setStars] = useState<Star[]>([]);
-
-  useEffect(() => {
-    const generatedStars: Star[] = [];
-    for (let i = 0; i < 100; i++) {
-      generatedStars.push({
+  const stars = useMemo<Star[]>(
+    () =>
+      Array.from({ length: 100 }, (_, i) => ({
         id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 2 + 1,
-        delay: Math.random() * 5,
-        duration: Math.random() * 3 + 2,
-      });
-    }
-    setStars(generatedStars);
-  }, []);
+        x: (i * 13) % 100,
+        y: (i * 29) % 100,
+        size: 1 + (i % 3),
+        delay: (i % 10) * 0.5,
+        duration: 2 + (i % 4),
+      })),
+    []
+  );
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">

@@ -13,6 +13,12 @@ export interface PrayerTime {
   isCurrent: boolean;
 }
 
+export interface PrayerFetchMeta {
+  source: "JAKIM";
+  zone: string;
+  fetchedAt: Date;
+}
+
 export interface Location {
   latitude: number;
   longitude: number;
@@ -82,6 +88,7 @@ async function fetchPrayerTimes(zone: string): Promise<PrayerTime[]> {
 
 export function usePrayerTimes(location: Location | null) {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
+  const [fetchMeta, setFetchMeta] = useState<PrayerFetchMeta | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState<Date>(new Date());
@@ -104,6 +111,7 @@ export function usePrayerTimes(location: Location | null) {
     // Skip if no location or if lat/lng are undefined
     if (typeof latitude !== "number" || typeof longitude !== "number") {
       setPrayerTimes([]);
+      setFetchMeta(null);
       return;
     }
 
@@ -129,10 +137,16 @@ export function usePrayerTimes(location: Location | null) {
         const times = await fetchPrayerTimes(resolvedZone);
         if (!cancelled) {
           setPrayerTimes(times);
+          setFetchMeta({
+            source: "JAKIM",
+            zone: resolvedZone,
+            fetchedAt: new Date(),
+          });
         }
       } catch {
         if (!cancelled) {
           setError("Gagal mendapatkan waktu solat. Sila cuba lagi.");
+          setFetchMeta(null);
         }
       } finally {
         if (!cancelled) {
@@ -212,6 +226,7 @@ export function usePrayerTimes(location: Location | null) {
     prayers: prayersWithStatus,
     nextPrayer,
     timeUntilNext,
+    fetchMeta,
     loading,
     error,
   };

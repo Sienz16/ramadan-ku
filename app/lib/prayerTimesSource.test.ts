@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   findNearestLocation,
+  formatFetchMeta,
   formatHijriDateFromJakim,
   mapJakimTimingsToCorePrayers,
   resolveZone,
@@ -75,5 +76,21 @@ describe("formatHijriDateFromJakim", () => {
     const label = formatHijriDateFromJakim("1447-08-28");
 
     expect(label).toBe("28 Sya'ban 1447");
+  });
+});
+
+describe("formatFetchMeta", () => {
+  test("formats source + zone + fetch time for trust panel", () => {
+    const meta = formatFetchMeta({
+      source: "JAKIM",
+      zone: "SBH07",
+      fetchedAt: new Date("2026-02-16T10:05:00Z"),
+      locale: "en-GB",
+      timeZone: "Asia/Kuala_Lumpur",
+    });
+
+    expect(meta).toContain("JAKIM");
+    expect(meta).toContain("SBH07");
+    expect(meta).toContain("18:05");
   });
 });

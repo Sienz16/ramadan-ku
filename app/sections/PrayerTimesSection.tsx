@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { usePrayerTimes } from "../hooks/usePrayerTimes";
+import { formatFetchMeta } from "../lib/prayerTimesSource";
 
 const prayerNamesMs: Record<string, string> = {
   Fajr: "Subuh",
@@ -32,7 +33,7 @@ interface PrayerTimesSectionProps {
 }
 
 export default function PrayerTimesSection({ location }: PrayerTimesSectionProps) {
-  const { prayers, nextPrayer, timeUntilNext, loading, error } = usePrayerTimes(
+  const { prayers, nextPrayer, timeUntilNext, fetchMeta, loading, error } = usePrayerTimes(
     location
       ? {
           latitude: location.latitude,
@@ -74,8 +75,7 @@ export default function PrayerTimesSection({ location }: PrayerTimesSectionProps
     );
   }
 
-  // Get current prayer (if any) and next prayer info
-  const currentPrayerIndex = prayers.findIndex((p) => p.isCurrent);
+  // Get next prayer info
   const nextPrayerIndex = prayers.findIndex((p) => p.isNext);
 
   return (
@@ -120,6 +120,16 @@ export default function PrayerTimesSection({ location }: PrayerTimesSectionProps
           {error && (
             <p className="text-red-400 text-xs mt-4 bg-red-400/10 px-3 py-1.5 rounded-full inline-block">
               {error}
+            </p>
+          )}
+
+          {fetchMeta && (
+            <p className="text-[#FFF8E1]/45 text-[11px] mt-3 font-[family-name:var(--font-poppins)]">
+              {formatFetchMeta({
+                source: fetchMeta.source,
+                zone: fetchMeta.zone,
+                fetchedAt: fetchMeta.fetchedAt,
+              })}
             </p>
           )}
         </div>
