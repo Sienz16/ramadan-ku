@@ -1,34 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { dailyVerses } from "../data/quran";
 
 export default function DailyQuranSection() {
-  const [currentIndex, setCurrentIndex] = useState(() => {
-    const today = new Date();
-    return (today.getDate() - 1) % dailyVerses.length;
-  });
-
+  const today = new Date();
+  const currentIndex = (today.getDate() - 1) % dailyVerses.length;
   const verse = dailyVerses[currentIndex];
 
-  const nextVerse = () => {
-    setCurrentIndex((prev) => (prev + 1) % dailyVerses.length);
-  };
-
-  const prevVerse = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + dailyVerses.length) % dailyVerses.length
-    );
-  };
-
   return (
-    <section className="relative py-20 px-4">
+    <section className="relative py-20 px-6 sm:px-8 lg:px-16 xl:px-24">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="max-w-3xl mx-auto"
+        className="max-w-5xl mx-auto"
       >
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -41,79 +27,54 @@ export default function DailyQuranSection() {
           </p>
         </div>
 
-        {/* Verse Card */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={verse.id}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-            className="bg-gradient-to-br from-[#004D40]/80 to-[#004D40]/40 border border-[#FFB300]/30 rounded-2xl p-8 shadow-[0_0_40px_rgba(255,179,0,0.08)]"
-          >
-            {/* Surah Info */}
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-[#FFB300] font-[family-name:var(--font-poppins)]">
-                Surah {verse.surah}
-              </h3>
-              <p className="text-[#FFD54F] text-sm">
-                Ayat {verse.ayahNumber}
-              </p>
-              <p className="text-[#FFF8E1]/40 text-xs">
+        {/* Verse Card - Enhanced layout for larger screens */}
+        <div
+          className="bg-gradient-to-br from-[#004D40]/80 to-[#004D40]/40 border border-[#FFB300]/30 rounded-2xl p-8 lg:p-12 shadow-[0_0_40px_rgba(255,179,0,0.08)]"
+        >
+            {/* Surah Info Header */}
+            <div className="text-center mb-8 pb-6 border-b border-[#FFB300]/20">
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                <h3 className="text-2xl md:text-3xl font-bold text-[#FFB300] font-[family-name:var(--font-poppins)]">
+                  Surah {verse.surah}
+                </h3>
+                <span className="px-3 py-1 bg-[#FFB300]/10 rounded-full text-[#FFD54F] text-sm font-[family-name:var(--font-poppins)]">
+                  Ayat {verse.ayahNumber}
+                </span>
+              </div>
+              <p className="text-[#FFF8E1]/40 text-sm mt-2">
                 {verse.surahNumber}:{verse.ayahNumber}
               </p>
             </div>
 
-            {/* Arabic */}
-            <div className="text-center mb-6">
-              <p
-                className="text-xl md:text-2xl text-[#FFF8E1] leading-relaxed font-[family-name:var(--font-amiri)]"
-                dir="rtl"
-              >
-                {verse.arabic}
-              </p>
+            {/* Grid layout for content */}
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+              {/* Left - Arabic */}
+              <div className="flex flex-col justify-center">
+                <p className="text-xs text-[#FFB300]/70 uppercase tracking-wider mb-4 font-[family-name:var(--font-poppins)]">
+                  Al-Quran
+                </p>
+                <p
+                  className="text-2xl md:text-3xl lg:text-4xl text-[#FFF8E1] leading-[1.8] font-[family-name:var(--font-amiri)] text-center lg:text-right"
+                  dir="rtl"
+                >
+                  {verse.arabic}
+                </p>
+
+                {/* Divider - mobile only */}
+                <div className="lg:hidden w-24 h-px bg-gradient-to-r from-transparent via-[#FFB300] to-transparent mx-auto my-6" />
+              </div>
+
+              {/* Right - Translation */}
+              <div className="flex flex-col justify-center p-6 bg-[#FFB300]/5 rounded-xl border border-[#FFB300]/10">
+                <p className="text-sm text-[#FFD54F] mb-3 uppercase tracking-wider font-[family-name:var(--font-poppins)]">
+                  Terjemahan / Translation
+                </p>
+                <p className="text-lg md:text-xl text-[#FFF8E1] leading-relaxed font-[family-name:var(--font-poppins)]">
+                  {verse.translation}
+                </p>
+              </div>
             </div>
-
-            {/* Divider */}
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#FFB300] to-transparent mx-auto my-6" />
-
-            {/* Translation */}
-            <div>
-              <p className="text-sm text-[#FFD54F] mb-2 uppercase tracking-wider font-[family-name:var(--font-poppins)]">
-                Terjemahan
-              </p>
-              <p className="text-xs text-[#FFF8E1]/40 mb-1">Translation</p>
-              <p className="text-lg text-[#FFF8E1] leading-relaxed font-[family-name:var(--font-poppins)]">
-                {verse.translation}
-              </p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Navigation */}
-        <div className="flex justify-center gap-4 mt-8">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={prevVerse}
-            className="px-6 py-3 rounded-full border border-[#FFB300]/50 text-[#FFB300] hover:bg-[#FFB300]/10 transition-colors font-[family-name:var(--font-poppins)]"
-          >
-            Sebelumnya
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={nextVerse}
-            className="px-6 py-3 rounded-full bg-gradient-to-r from-[#FFB300] to-[#FFA000] text-[#004D40] font-semibold hover:shadow-[0_0_20px_rgba(255,179,0,0.4)] transition-shadow font-[family-name:var(--font-poppins)]"
-          >
-            Ayat Seterusnya
-          </motion.button>
         </div>
-
-        {/* Verse Counter */}
-        <p className="text-center text-[#FFF8E1]/50 text-sm mt-4 font-[family-name:var(--font-poppins)]">
-          Ayat {currentIndex + 1} daripada {dailyVerses.length}
-        </p>
       </motion.div>
     </section>
   );

@@ -14,7 +14,7 @@ import { useLocation } from "./hooks/useLocation";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
-  const { location, setManualLocation, malaysianLocations } = useLocation();
+  const { location, error, loading, requestLocation, setManualLocation } = useLocation();
   const [showLocationSelector, setShowLocationSelector] = useState(true);
 
   return (
@@ -25,7 +25,7 @@ export default function Home() {
       {/* Content */}
       <div className="relative z-10">
         <AnimatePresence mode="wait">
-          {showLocationSelector && !location ? (
+          {showLocationSelector ? (
             <motion.div
               key="location-selector"
               initial={{ opacity: 0 }}
@@ -35,6 +35,11 @@ export default function Home() {
             >
               <LocationSelector
                 onLocationSelected={() => setShowLocationSelector(false)}
+                location={location}
+                error={error}
+                loading={loading}
+                requestLocation={requestLocation}
+                setManualLocation={setManualLocation}
               />
             </motion.div>
           ) : (

@@ -1,32 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { dailyDuas } from "../data/duas";
 
 export default function DailyDuaSection() {
-  const [currentIndex, setCurrentIndex] = useState(() => {
-    const today = new Date();
-    return (today.getDate() - 1) % dailyDuas.length;
-  });
-
+  const today = new Date();
+  const currentIndex = (today.getDate() - 1) % dailyDuas.length;
   const dua = dailyDuas[currentIndex];
 
-  const nextDua = () => {
-    setCurrentIndex((prev) => (prev + 1) % dailyDuas.length);
-  };
-
-  const prevDua = () => {
-    setCurrentIndex((prev) => (prev - 1 + dailyDuas.length) % dailyDuas.length);
-  };
-
   return (
-    <section className="relative py-20 px-4">
+    <section className="relative py-20 px-6 sm:px-8 lg:px-16 xl:px-24">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="max-w-3xl mx-auto"
+        className="max-w-5xl mx-auto"
       >
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -39,82 +27,56 @@ export default function DailyDuaSection() {
           </p>
         </div>
 
-        {/* Dua Card */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={dua.id}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-            className="bg-gradient-to-br from-[#004D40]/60 to-[#004D40]/30 border border-[#FFB300]/30 rounded-2xl p-8 shadow-[0_0_40px_rgba(255,179,0,0.08)]"
-          >
-            {/* Arabic */}
-            <div className="text-center mb-6">
-              <p
-                className="text-2xl md:text-3xl text-[#FFF8E1] leading-relaxed font-[family-name:var(--font-amiri)]"
-                dir="rtl"
-              >
-                {dua.arabic}
-              </p>
+        {/* Dua Card - Full Width for larger screens */}
+        <div className="bg-gradient-to-br from-[#004D40]/60 to-[#004D40]/30 border border-[#FFB300]/30 rounded-2xl p-8 lg:p-12 shadow-[0_0_40px_rgba(255,179,0,0.08)]"
+        >
+            {/* Grid layout for larger screens */}
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+              {/* Left - Arabic */}
+              <div className="flex flex-col">
+                <p className="text-xs text-[#FFB300]/70 uppercase tracking-wider mb-4 font-[family-name:var(--font-poppins)]">
+                  Doa / Dua
+                </p>
+                <p
+                  className="text-2xl md:text-3xl lg:text-4xl text-[#FFF8E1] leading-relaxed font-[family-name:var(--font-amiri)] text-center lg:text-right"
+                  dir="rtl"
+                >
+                  {dua.arabic}
+                </p>
+
+                {/* Divider - mobile only */}
+                <div className="lg:hidden w-24 h-px bg-gradient-to-r from-transparent via-[#FFB300] to-transparent mx-auto my-6" />
+              </div>
+
+              {/* Right - Details */}
+              <div className="flex flex-col justify-center">
+                {/* Transliteration */}
+                <div className="mb-6 p-4 bg-[#FFB300]/5 rounded-xl border border-[#FFB300]/10">
+                  <p className="text-sm text-[#FFD54F] mb-1 uppercase tracking-wider font-[family-name:var(--font-poppins)]">
+                    Sebutan / Transliteration
+                  </p>
+                  <p className="text-lg md:text-xl text-[#FFD54F] italic">
+                    {dua.transliteration}
+                  </p>
+                </div>
+
+                {/* Translation */}
+                <div className="mb-4">
+                  <p className="text-sm text-[#FFD54F] mb-2 uppercase tracking-wider font-[family-name:var(--font-poppins)]">
+                    Terjemahan / Translation
+                  </p>
+                  <p className="text-lg md:text-xl text-[#FFF8E1] font-[family-name:var(--font-poppins)] leading-relaxed">{dua.translation}</p>
+                </div>
+
+                {/* Reference */}
+                {dua.reference && (
+                  <p className="text-sm text-[#FFB300]/80 text-right font-[family-name:var(--font-poppins)] mt-4 pt-4 border-t border-[#FFB300]/20">
+                    — {dua.reference}
+                  </p>
+                )}
+              </div>
             </div>
-
-            {/* Divider */}
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#FFB300] to-transparent mx-auto my-6" />
-
-            {/* Transliteration */}
-            <div className="mb-4">
-              <p className="text-sm text-[#FFD54F] mb-2 uppercase tracking-wider font-[family-name:var(--font-poppins)]">
-                Sebutan
-              </p>
-              <p className="text-xs text-[#FFF8E1]/40 mb-1">Transliteration</p>
-              <p className="text-lg text-[#FFD54F] italic">
-                {dua.transliteration}
-              </p>
-            </div>
-
-            {/* Translation */}
-            <div className="mb-4">
-              <p className="text-sm text-[#FFD54F] mb-2 uppercase tracking-wider font-[family-name:var(--font-poppins)]">
-                Terjemahan
-              </p>
-              <p className="text-xs text-[#FFF8E1]/40 mb-1">Translation</p>
-              <p className="text-lg text-[#FFF8E1] font-[family-name:var(--font-poppins)]">{dua.translation}</p>
-            </div>
-
-            {/* Reference */}
-            {dua.reference && (
-              <p className="text-sm text-[#FFB300] text-right font-[family-name:var(--font-poppins)]">
-                — {dua.reference}
-              </p>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Navigation */}
-        <div className="flex justify-center gap-4 mt-8">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={prevDua}
-            className="px-6 py-3 rounded-full border border-[#FFB300]/50 text-[#FFB300] hover:bg-[#FFB300]/10 transition-colors font-[family-name:var(--font-poppins)]"
-          >
-            Sebelumnya
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={nextDua}
-            className="px-6 py-3 rounded-full bg-gradient-to-r from-[#FFB300] to-[#FFA000] text-[#004D40] font-semibold hover:shadow-[0_0_20px_rgba(255,179,0,0.4)] transition-shadow font-[family-name:var(--font-poppins)]"
-          >
-            Doa Seterusnya
-          </motion.button>
         </div>
-
-        {/* Dua Counter */}
-        <p className="text-center text-[#FFF8E1]/50 text-sm mt-4 font-[family-name:var(--font-poppins)]">
-          Doa {currentIndex + 1} daripada {dailyDuas.length}
-        </p>
       </motion.div>
     </section>
   );

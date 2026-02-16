@@ -1,33 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { findNearestLocation } from "../lib/prayerTimesSource";
+import { AUTO_DETECT_LOCATIONS, JAKIM_LOCATIONS } from "../constants/jakimZones";
 
 export interface Location {
   latitude: number;
   longitude: number;
   city?: string;
   state?: string;
+  zone?: string;
   method: "auto" | "manual";
 }
 
-// Malaysian states with approximate coordinates
-export const malaysianLocations = [
-  { city: "Kuala Lumpur", state: "WP Kuala Lumpur", latitude: 3.139, longitude: 101.6869 },
-  { city: "Putrajaya", state: "WP Putrajaya", latitude: 2.9264, longitude: 101.6964 },
-  { city: "Johor Bahru", state: "Johor", latitude: 1.4927, longitude: 103.7414 },
-  { city: "Kota Bharu", state: "Kelantan", latitude: 6.1254, longitude: 102.2383 },
-  { city: "Melaka", state: "Melaka", latitude: 2.1896, longitude: 102.2501 },
-  { city: "Seremban", state: "Negeri Sembilan", latitude: 2.7259, longitude: 101.9378 },
-  { city: "Kuantan", state: "Pahang", latitude: 3.8077, longitude: 103.326 },
-  { city: "George Town", state: "Pulau Pinang", latitude: 5.4141, longitude: 100.3288 },
-  { city: "Ipoh", state: "Perak", latitude: 4.5975, longitude: 101.0901 },
-  { city: "Kangar", state: "Perlis", latitude: 6.4414, longitude: 100.1983 },
-  { city: "Kota Kinabalu", state: "Sabah", latitude: 5.9804, longitude: 116.0735 },
-  { city: "Kuching", state: "Sarawak", latitude: 1.5535, longitude: 110.3593 },
-  { city: "Shah Alam", state: "Selangor", latitude: 3.0738, longitude: 101.5183 },
-  { city: "Kuala Terengganu", state: "Terengganu", latitude: 5.3302, longitude: 103.1408 },
-  { city: "Alor Setar", state: "Kedah", latitude: 6.1248, longitude: 100.3678 },
-];
+export const malaysianLocations = JAKIM_LOCATIONS;
 
 export function useLocation() {
   const [location, setLocation] = useState<Location | null>(null);
@@ -46,9 +32,16 @@ export function useLocation() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const nearestLocation = findNearestLocation(latitude, longitude, AUTO_DETECT_LOCATIONS);
+
         setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+          latitude,
+          longitude,
+          city: nearestLocation?.city,
+          state: nearestLocation?.state,
+          zone: nearestLocation?.zone,
           method: "auto",
         });
         setLoading(false);
@@ -83,6 +76,7 @@ export function useLocation() {
       longitude: locationData.longitude,
       city: locationData.city,
       state: locationData.state,
+      zone: locationData.zone,
       method: "manual",
     });
     setError(null);

@@ -2,21 +2,34 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocation, malaysianLocations } from "../hooks/useLocation";
+import { malaysianLocations, type Location } from "../hooks/useLocation";
 
 interface LocationSelectorProps {
   onLocationSelected?: () => void;
+  location: Location | null;
+  error: string | null;
+  loading: boolean;
+  requestLocation: () => void;
+  setManualLocation: (location: typeof malaysianLocations[0]) => void;
 }
 
-export default function LocationSelector({ onLocationSelected }: LocationSelectorProps) {
-  const { location, error, loading, requestLocation, setManualLocation } = useLocation();
+export default function LocationSelector({
+  onLocationSelected,
+  location,
+  error,
+  loading,
+  requestLocation,
+  setManualLocation,
+}: LocationSelectorProps) {
   const [showManual, setShowManual] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredLocations = malaysianLocations.filter(
     (loc) =>
+      loc.zone.toLowerCase().includes(searchTerm.toLowerCase()) ||
       loc.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      loc.state.toLowerCase().includes(searchTerm.toLowerCase())
+      loc.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      loc.area.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleManualSelect = (loc: typeof malaysianLocations[0]) => {
@@ -126,11 +139,12 @@ export default function LocationSelector({ onLocationSelected }: LocationSelecto
                   onClick={() => handleManualSelect(loc)}
                   className="w-full text-left px-4 py-2 rounded-lg text-[#FFF8E1]/80 hover:text-[#FFB300] transition-colors"
                 >
-                  <span className="font-medium">{loc.city}</span>
-                  <span className="text-[#FFF8E1]/50 text-sm">, {loc.state}</span>
-                </motion.button>
-              ))}
-            </div>
+                      <span className="font-medium">{loc.zone} - {loc.city}</span>
+                      <span className="block text-[#FFF8E1]/50 text-xs">{loc.area}</span>
+                      <span className="text-[#FFF8E1]/40 text-xs">{loc.state}</span>
+                    </motion.button>
+                  ))}
+                </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -147,6 +161,7 @@ export default function LocationSelector({ onLocationSelected }: LocationSelecto
             {location.city || `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`}
           </p>
           {location.state && <p className="text-[#FFF8E1]/60 text-sm">{location.state}</p>}
+          {location.zone && <p className="text-[#FFD54F]/70 text-xs mt-1">Zon JAKIM: {location.zone}</p>}
           <p className="text-[#FFF8E1]/40 text-xs mt-1">
             {location.method === "auto" ? "(Pengesanan Auto)" : "(Pilihan Manual)"}
           </p>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { mapJakimTimingsToCorePrayers, resolveZone } from "../lib/prayerTimesSource";
+import { malaysianLocations } from "./useLocation";
 
 export interface PrayerTime {
   name: string;
@@ -16,6 +18,7 @@ export interface Location {
   longitude: number;
   city?: string;
   state?: string;
+  zone?: string;
 }
 
 // Helper to convert 24h to 12h format
@@ -28,26 +31,9 @@ function to12Hour(time24: string): string {
   return `${h}:${minute} ${period}`;
 }
 
-// Fetch prayer times from Aladhan API
-async function fetchPrayerTimes(
-  latitude: number,
-  longitude: number,
-  date: Date
-): Promise<PrayerTime[]> {
-  const dateStr = date.toISOString().split("T")[0];
+type PrayerKey = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
 
-  // Method 3 is Muslim World League (closest to JAKIM for Malaysia)
-  const response = await fetch(
-    `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=3&school=1`
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch prayer times");
-  }
-
-  const data = await response.json();
-  const timings = data.data.timings;
-
+function toPrayerTimes(timings: Record<PrayerKey, string>): PrayerTime[] {
   const prayerNames: Record<string, string> = {
     Fajr: "الفجر",
     Sunrise: "الشروق",
@@ -57,7 +43,7 @@ async function fetchPrayerTimes(
     Isha: "العشاء",
   };
 
-  const prayers = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+  const prayers: PrayerKey[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
   return prayers.map((name) => ({
     name,
@@ -69,6 +55,31 @@ async function fetchPrayerTimes(
   }));
 }
 
+async function fetchJakimPrayerTimes(zone: string): Promise<PrayerTime[]> {
+  const url = `https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=today&zone=${zone}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch JAKIM prayer times");
+  }
+
+  const data = await response.json();
+  const timings = data?.prayerTime?.[0];
+
+  if (!timings || data?.status !== "OK!") {
+    throw new Error("JAKIM API returned no prayer data");
+  }
+
+  const coreTimings = mapJakimTimingsToCorePrayers(timings);
+
+  return toPrayerTimes(coreTimings);
+}
+
+async function fetchPrayerTimes(zone: string): Promise<PrayerTime[]> {
+  return fetchJakimPrayerTimes(zone);
+}
+
 export function usePrayerTimes(location: Location | null) {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [loading, setLoading] = useState(false);
@@ -78,6 +89,7 @@ export function usePrayerTimes(location: Location | null) {
   // Extract primitive values to avoid object reference issues
   const latitude = location?.latitude;
   const longitude = location?.longitude;
+  const zone = location?.zone;
 
   // Update current time every minute
   useEffect(() => {
@@ -95,20 +107,30 @@ export function usePrayerTimes(location: Location | null) {
       return;
     }
 
-    // Prevent multiple simultaneous fetches
-    if (loading) return;
-
     let cancelled = false;
 
     const fetchTimes = async () => {
       setLoading(true);
       setError(null);
       try {
-        const times = await fetchPrayerTimes(latitude, longitude, new Date());
+        const resolvedZone = resolveZone(
+          {
+            latitude,
+            longitude,
+            zone,
+          },
+          malaysianLocations
+        );
+
+        if (!resolvedZone) {
+          throw new Error("Unable to resolve JAKIM zone for selected location");
+        }
+
+        const times = await fetchPrayerTimes(resolvedZone);
         if (!cancelled) {
           setPrayerTimes(times);
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError("Gagal mendapatkan waktu solat. Sila cuba lagi.");
         }
@@ -124,7 +146,7 @@ export function usePrayerTimes(location: Location | null) {
     return () => {
       cancelled = true;
     };
-  }, [latitude, longitude]); // Use primitive values, not the location object
+  }, [latitude, longitude, zone]);
 
   // Calculate next prayer and current prayer
   const prayersWithStatus = useMemo(() => {

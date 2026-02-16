@@ -76,12 +76,12 @@ export default function TasbeehSection() {
     : `${currentCount} / 33`;
 
   return (
-    <section className="relative py-20 px-4 batik-pattern">
+    <section className="relative py-20 px-6 sm:px-8 lg:px-16 xl:px-24 batik-pattern">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="max-w-2xl mx-auto"
+        className="max-w-4xl mx-auto"
       >
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -116,92 +116,107 @@ export default function TasbeehSection() {
           ))}
         </div>
 
-        {/* Current Dhikr Display */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selectedDhikr.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="text-center mb-8"
-          >
-            <p
-              className="text-3xl md:text-4xl text-[#FFB300] mb-2 font-[family-name:var(--font-amiri)]"
-              dir="rtl"
-            >
-              {selectedDhikr.arabic}
-            </p>
-            <p className="text-lg text-[#FFD54F]">{selectedDhikr.transliteration}</p>
-            <p className="text-sm text-[#FFF8E1]/70 font-[family-name:var(--font-poppins)]">
-              {selectedDhikr.meaningMs}
-            </p>
-            <p className="text-xs text-[#FFF8E1]/40">{selectedDhikr.meaning}</p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Counter Display */}
-        <div className="flex justify-center mb-8">
-          <motion.div
-            key={displayCount}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="text-7xl md:text-8xl font-bold text-[#FFB300] font-[family-name:var(--font-cinzel)]"
-          >
-            {displayCount}
-          </motion.div>
-        </div>
-
-        {/* Beads Visualization */}
-        <div className="flex justify-center flex-wrap gap-1.5 mb-8 max-w-xs mx-auto px-4">
-          {Array.from({ length: 33 }, (_, index) => {
-            const filled = index < currentCount;
-
-            return (
+        {/* Two Column Layout for larger screens */}
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left Column - Counter and Controls */}
+          <div className="flex flex-col items-center">
+            {/* Counter Display */}
             <motion.div
-              key={index}
-              initial={false}
-              animate={{
-                backgroundColor: filled ? "#FFB300" : "rgba(255, 179, 0, 0.15)",
-                scale: filled ? 1.3 : 1,
-              }}
-              transition={{ duration: 0.2 }}
-              className="w-3 h-3 rounded-full"
-            />
-            );
-          })}
-        </div>
+              key={displayCount}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="text-8xl md:text-9xl font-bold text-[#FFB300] font-[family-name:var(--font-cinzel)] mb-6"
+            >
+              {displayCount}
+            </motion.div>
 
-        {/* Progress Text */}
-        <p className="text-center text-[#FFF8E1]/60 text-base mb-2 font-[family-name:var(--font-poppins)]">
-          {displayProgress}
-        </p>
-        <p className="text-center text-[#FFB300] text-sm mb-8 font-[family-name:var(--font-poppins)]">
-          {completedRounds} kali x 33 selesai
-        </p>
+            {/* Progress Text */}
+            <p className="text-center text-[#FFF8E1]/60 text-lg mb-2 font-[family-name:var(--font-poppins)]">
+              {displayProgress}
+            </p>
+            <p className="text-center text-[#FFB300] text-base mb-8 font-[family-name:var(--font-poppins)]">
+              {completedRounds} kali x 33 selesai
+            </p>
 
-        {/* Count Button */}
-        <div className="flex flex-col items-center gap-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleCount}
-            className={`w-36 h-36 rounded-full font-bold text-xl shadow-[0_0_40px_rgba(255,179,0,0.3)] hover:shadow-[0_0_60px_rgba(255,179,0,0.5)] transition-all font-[family-name:var(--font-poppins)] ${
-              currentCount === 33
-                ? "bg-gradient-to-br from-[#FFD54F] to-[#FFB300] text-[#004D40] animate-pulse"
-                : "bg-gradient-to-br from-[#FFB300] to-[#FFA000] text-[#004D40]"
-            }`}
-          >
-            {currentCount === 33 ? "Seterusnya →" : "Kira"}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={reset}
-            className="px-6 py-3 rounded-full border border-[#FFB300]/50 text-[#FFB300] hover:bg-[#FFB300]/10 transition-colors font-[family-name:var(--font-poppins)] text-sm"
-          >
-            Tetap Semula
-          </motion.button>
+            {/* Count Button */}
+            <div className="flex flex-col items-center gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleCount}
+                className={`w-40 h-40 rounded-full font-bold text-2xl shadow-[0_0_40px_rgba(255,179,0,0.3)] hover:shadow-[0_0_60px_rgba(255,179,0,0.5)] transition-all font-[family-name:var(--font-poppins)] ${
+                  currentCount === 33
+                    ? "bg-gradient-to-br from-[#FFD54F] to-[#FFB300] text-[#004D40] animate-pulse"
+                    : "bg-gradient-to-br from-[#FFB300] to-[#FFA000] text-[#004D40]"
+                }`}
+              >
+                {currentCount === 33 ? "Seterusnya →" : "Kira"}
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={reset}
+                className="px-6 py-3 rounded-full border border-[#FFB300]/50 text-[#FFB300] hover:bg-[#FFB300]/10 transition-colors font-[family-name:var(--font-poppins)] text-sm"
+              >
+                Tetap Semula
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Right Column - Dhikr Info and Beads */}
+          <div className="flex flex-col items-center">
+            {/* Current Dhikr Display */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedDhikr.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-center mb-8 p-6 bg-[#004D40]/30 rounded-2xl border border-[#FFB300]/20 w-full"
+              >
+                <p className="text-xs text-[#FFB300]/70 uppercase tracking-wider mb-6 font-[family-name:var(--font-poppins)]">
+                  Zikir Pilihan / Selected Dhikr
+                </p>
+                <p
+                  className="text-4xl md:text-5xl text-[#FFB300] mb-3 font-[family-name:var(--font-amiri)] pt-2"
+                  dir="rtl"
+                >
+                  {selectedDhikr.arabic}
+                </p>
+                <p className="text-xl text-[#FFD54F] mb-1">{selectedDhikr.transliteration}</p>
+                <p className="text-base text-[#FFF8E1]/70 font-[family-name:var(--font-poppins)]">
+                  {selectedDhikr.meaningMs}
+                </p>
+                <p className="text-sm text-[#FFF8E1]/40">{selectedDhikr.meaning}</p>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Beads Visualization */}
+            <div className="w-full">
+              <p className="text-center text-[#FFF8E1]/50 text-sm mb-4 font-[family-name:var(--font-poppins)]">
+                Sebutan / Recitations
+              </p>
+              <div className="flex justify-center flex-wrap gap-2 max-w-md mx-auto px-4">
+                {Array.from({ length: 33 }, (_, index) => {
+                  const filled = index < currentCount;
+
+                  return (
+                  <motion.div
+                    key={index}
+                    initial={false}
+                    animate={{
+                      backgroundColor: filled ? "#FFB300" : "rgba(255, 179, 0, 0.15)",
+                      scale: filled ? 1.2 : 1,
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="w-4 h-4 rounded-full"
+                  />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </motion.div>
     </section>

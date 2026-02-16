@@ -27,6 +27,7 @@ interface PrayerTimesSectionProps {
     longitude: number;
     city?: string;
     state?: string;
+    zone?: string;
   } | null;
 }
 
@@ -38,6 +39,7 @@ export default function PrayerTimesSection({ location }: PrayerTimesSectionProps
           longitude: location.longitude,
           city: location.city,
           state: location.state,
+          zone: location.zone,
         }
       : null
   );
@@ -51,13 +53,13 @@ export default function PrayerTimesSection({ location }: PrayerTimesSectionProps
   const nextPrayerIndex = prayers.findIndex((p) => p.isNext);
 
   return (
-    <section className="relative py-16 px-4 batik-pattern">
+    <section className="relative py-16 px-6 sm:px-8 lg:px-16 xl:px-24 batik-pattern">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="max-w-md mx-auto"
+        className="max-w-6xl mx-auto"
       >
         {/* Section Header */}
         <div className="text-center mb-8">
@@ -96,141 +98,148 @@ export default function PrayerTimesSection({ location }: PrayerTimesSectionProps
           )}
         </div>
 
-        {/* Next Prayer Hero Card */}
-        {!loading && nextPrayer && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6"
-          >
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#FFB300] via-[#FFA000] to-[#FF8F00] p-6 shadow-[0_8px_32px_rgba(255,179,0,0.3)]">
-              {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+        {/* Two Column Layout for larger screens */}
+        {!loading && prayers.length > 0 && (
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Left Column - Next Prayer Hero Card */}
+            {nextPrayer && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="lg:sticky lg:top-24 lg:self-start"
+              >
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#FFB300] via-[#FFA000] to-[#FF8F00] p-6 lg:p-8 shadow-[0_8px_32px_rgba(255,179,0,0.3)] h-full">
+                  {/* Background decoration */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
 
-              <div className="relative z-10">
-                {/* Label */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-[#004D40]/20 rounded-full text-[#004D40] text-xs font-semibold">
-                    Seterusnya
-                  </span>
-                  <motion.div
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="w-2.5 h-2.5 bg-[#004D40] rounded-full"
-                  />
-                </div>
+                  <div className="relative z-10 flex flex-col h-full justify-between">
+                    <div>
+                      {/* Label */}
+                      <div className="flex items-center justify-between mb-6">
+                        <span className="px-4 py-1.5 bg-[#004D40]/20 rounded-full text-[#004D40] text-sm font-semibold">
+                          Seterusnya / Next
+                        </span>
+                        <motion.div
+                          animate={{ scale: [1, 1.3, 1] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-3 h-3 bg-[#004D40] rounded-full"
+                        />
+                      </div>
 
-                {/* Prayer Name & Icon */}
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-4xl">{prayerIcons[nextPrayer.name]}</span>
-                  <div>
-                    <h3 className="text-2xl font-bold text-[#004D40] font-[family-name:var(--font-poppins)]">
-                      {prayerNamesMs[nextPrayer.name]}
-                    </h3>
-                    <p className="text-[#004D40]/70 text-sm">{nextPrayer.name}</p>
+                      {/* Prayer Name & Icon */}
+                      <div className="flex items-center gap-4 mb-6">
+                        <span className="text-5xl lg:text-6xl">{prayerIcons[nextPrayer.name]}</span>
+                        <div>
+                          <h3 className="text-3xl lg:text-4xl font-bold text-[#004D40] font-[family-name:var(--font-poppins)]">
+                            {prayerNamesMs[nextPrayer.name]}
+                          </h3>
+                          <p className="text-[#004D40]/70 text-base">{nextPrayer.name}</p>
+                          <p className="text-[#004D40]/60 text-sm mt-1" dir="rtl">{nextPrayer.arabicName}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Countdown */}
+                    <div className="mt-6 pt-6 border-t border-[#004D40]/20">
+                      <p className="text-[#004D40]/70 text-sm mb-2">Masa lagi / Time remaining:</p>
+                      <p className="text-4xl lg:text-5xl font-bold text-[#004D40] font-[family-name:var(--cinzel)]">
+                        {timeUntilNext}
+                      </p>
+                    </div>
+
+                    {/* Time */}
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-[#004D40]/60 text-sm">Waktu Solat / Prayer Time</span>
+                      <span className="text-2xl font-bold text-[#004D40] font-[family-name:var(--font-cinzel)]">
+                        {nextPrayer.time12h}
+                      </span>
+                    </div>
                   </div>
                 </div>
+              </motion.div>
+            )}
 
-                {/* Countdown */}
-                <div className="mt-4 pt-4 border-t border-[#004D40]/20">
-                  <p className="text-[#004D40]/70 text-xs mb-1">Masa lagi:</p>
-                  <p className="text-3xl font-bold text-[#004D40] font-[family-name:var(--cinzel)]">
-                    {timeUntilNext}
-                  </p>
-                </div>
+            {/* Right Column - All Prayers Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+              {prayers.map((prayer, index) => {
+                const isNext = prayer.isNext;
+                const isPast = !isNext && index < (nextPrayerIndex ?? -1);
+                const isCurrent = prayer.isCurrent;
 
-                {/* Time */}
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-[#004D40]/60 text-xs" dir="rtl">{nextPrayer.arabicName}</span>
-                  <span className="text-xl font-bold text-[#004D40] font-[family-name:var(--font-cinzel)]">
-                    {nextPrayer.time12h}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* All Prayers Compact List */}
-        {!loading && prayers.length > 0 && (
-          <div className="space-y-2">
-            {prayers.map((prayer, index) => {
-              const isNext = prayer.isNext;
-              const isPast = !isNext && index < nextPrayerIndex;
-              const isCurrent = prayer.isCurrent;
-
-              return (
-                <motion.div
-                  key={prayer.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`flex items-center gap-3 p-3.5 rounded-2xl transition-all ${
-                    isNext
-                      ? "bg-[#FFB300]/10 border border-[#FFB300]/30"
-                      : isPast
-                      ? "opacity-40"
-                      : isCurrent
-                      ? "bg-[#004D40]/60 border border-[#FFB300]/20"
-                      : "bg-[#004D40]/30"
-                  }`}
-                >
-                  {/* Icon */}
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${
+                return (
+                  <motion.div
+                    key={prayer.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${
                       isNext
-                        ? "bg-[#FFB300] text-[#004D40]"
-                        : "bg-[#FFB300]/10 text-[#FFB300]"
+                        ? "bg-[#FFB300]/15 border-2 border-[#FFB300]/50 shadow-[0_0_20px_rgba(255,179,0,0.15)]"
+                        : isPast
+                        ? "opacity-40 bg-[#004D40]/20"
+                        : isCurrent
+                        ? "bg-[#004D40]/60 border-2 border-[#FFB300]/30"
+                        : "bg-[#004D40]/30 border border-[#FFB300]/10 hover:border-[#FFB300]/30"
                     }`}
                   >
-                    {prayerIcons[prayer.name]}
-                  </div>
+                    {/* Icon */}
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
+                        isNext
+                          ? "bg-[#FFB300] text-[#004D40] shadow-lg"
+                          : "bg-[#FFB300]/10 text-[#FFB300]"
+                      }`}
+                    >
+                      {prayerIcons[prayer.name]}
+                    </div>
 
-                  {/* Prayer Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    {/* Prayer Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`font-semibold font-[family-name:var(--font-poppins)] text-lg ${
+                            isNext ? "text-[#FFB300]" : "text-[#FFF8E1]"
+                          }`}
+                        >
+                          {prayerNamesMs[prayer.name]}
+                        </span>
+                        {isNext && (
+                          <span className="px-2 py-0.5 bg-[#FFB300] text-[#004D40] text-[10px] rounded-full font-bold">
+                            NEXT
+                          </span>
+                        )}
+                        {isCurrent && (
+                          <span className="px-2 py-0.5 bg-[#004D40] text-[#FFB300] text-[10px] rounded-full font-bold border border-[#FFB300]/30">
+                            NOW
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[#FFF8E1]/40 text-sm">{prayer.name}</span>
+                    </div>
+
+                    {/* Time */}
+                    <div className="text-right">
                       <span
-                        className={`font-semibold font-[family-name:var(--font-poppins)] ${
+                        className={`text-xl font-bold font-[family-name:var(--font-cinzel)] ${
                           isNext ? "text-[#FFB300]" : "text-[#FFF8E1]"
                         }`}
                       >
-                        {prayerNamesMs[prayer.name]}
+                        {prayer.time12h}
                       </span>
-                      {isNext && (
-                        <span className="px-1.5 py-0.5 bg-[#FFB300] text-[#004D40] text-[10px] rounded font-bold">
-                          NEXT
-                        </span>
-                      )}
-                      {isCurrent && (
-                        <span className="px-1.5 py-0.5 bg-[#004D40] text-[#FFB300] text-[10px] rounded font-bold border border-[#FFB300]/30">
-                          NOW
-                        </span>
-                      )}
                     </div>
-                    <span className="text-[#FFF8E1]/40 text-xs">{prayer.name}</span>
-                  </div>
-
-                  {/* Time */}
-                  <div className="text-right">
-                    <span
-                      className={`text-lg font-bold font-[family-name:var(--font-cinzel)] ${
-                        isNext ? "text-[#FFB300]" : "text-[#FFF8E1]"
-                      }`}
-                    >
-                      {prayer.time12h}
-                    </span>
-                  </div>
-                </motion.div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         )}
 
         {/* API Attribution */}
         <p className="text-center text-[#FFF8E1]/25 text-[10px] mt-6 font-[family-name:var(--font-poppins)]">
-          Waktu solat dari Aladhan API · Kaedah Muslim World League
+          Waktu solat rasmi dari JAKIM API
         </p>
       </motion.div>
     </section>

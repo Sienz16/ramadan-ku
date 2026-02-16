@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { formatHijriDateFromJakim } from "../lib/prayerTimesSource";
 
 interface CountdownResult {
   days: number;
@@ -15,41 +16,12 @@ interface CountdownResult {
   loading: boolean;
 }
 
-const MALAYSIA_TIMEZONE = "Asia/Kuala_Lumpur";
+const DEFAULT_ZONE = "WLY01";
 
-function getMalaysiaDateString(): string {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: MALAYSIA_TIMEZONE,
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).formatToParts(new Date());
-
-  const day = parts.find((p) => p.type === "day")?.value;
-  const month = parts.find((p) => p.type === "month")?.value;
-  const year = parts.find((p) => p.type === "year")?.value;
-
-  if (!day || !month || !year) {
-    return "";
-  }
-
-  return `${day}-${month}-${year}`;
-}
-
-// Fetch Hijri date from Aladhan API
-async function fetchHijriDate(): Promise<{
-  hijri: { month: { number: number; en: string }; day: number; year: string };
-  gregorian: { date: string };
-} | null> {
+async function fetchHijriDate(zone: string): Promise<{ month: number; day: number; year: string; label: string } | null> {
   try {
-    const dateStr = getMalaysiaDateString();
-
-    if (!dateStr) {
-      return null;
-    }
-
     const response = await fetch(
-      `https://api.aladhan.com/v1/gToH/${dateStr}`
+      `https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=today&zone=${zone}`
     );
 
     if (!response.ok) {
@@ -58,7 +30,24 @@ async function fetchHijriDate(): Promise<{
     }
 
     const data = await response.json();
-    return data.data;
+
+    if (data?.status !== "OK!" || !data?.prayerTime?.[0]?.hijri) {
+      return null;
+    }
+
+    const hijriValue = String(data.prayerTime[0].hijri);
+    const [year, month, day] = hijriValue.split("-").map(Number);
+
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    return {
+      month,
+      day,
+      year: String(year),
+      label: formatHijriDateFromJakim(hijriValue),
+    };
   } catch {
     // Silently fail - don't log error to console
     return null;
@@ -73,11 +62,11 @@ const ramadanDates: Record<number, { start: string; end: string }> = {
   2028: { start: "2028-01-28", end: "2028-02-26" },
 };
 
-export function useCountdown(): CountdownResult {
+export function useCountdown(zone?: string): CountdownResult {
   const [now, setNow] = useState<Date | null>(null);
   const [hijriInfo, setHijriInfo] = useState<{
     month: number;
-    monthName: string;
+    label: string;
     day: number;
     year: string;
   } | null>(null);
@@ -89,14 +78,9 @@ export function useCountdown(): CountdownResult {
 
     const fetchHijri = async () => {
       try {
-        const data = await fetchHijriDate();
+        const data = await fetchHijriDate(zone ?? DEFAULT_ZONE);
         if (!cancelled && data) {
-          setHijriInfo({
-            month: data.hijri.month.number,
-            monthName: data.hijri.month.en,
-            day: data.hijri.day,
-            year: data.hijri.year,
-          });
+          setHijriInfo(data);
         }
       } catch {
         // Don't show error to user, just don't show Hijri date
@@ -118,7 +102,7 @@ export function useCountdown(): CountdownResult {
       cancelled = true;
       clearInterval(timer);
     };
-  }, []);
+  }, [zone]);
 
   // Calculate Ramadan status
   const calculateRamadanStatus = useCallback(() => {
@@ -160,7 +144,7 @@ export function useCountdown(): CountdownResult {
 
     // Approximation based on Gregorian date windows
     const isRamadanByGregorian = now >= ramadanStart && now <= ramadanEnd;
-    // Malaysia-suitable source of truth using Hijri month from Aladhan
+    // Malaysia-suitable source of truth using Hijri month from JAKIM
     const isRamadanByHijri = hijriInfo?.month === 9;
     const isRamadan = hijriInfo ? Boolean(isRamadanByHijri) : isRamadanByGregorian;
 
@@ -223,7 +207,7 @@ export function useCountdown(): CountdownResult {
     daysInRamadan: status.daysInRamadan,
     totalRamadanDays: status.totalRamadanDays,
     hijriDate: hijriInfo
-      ? `${hijriInfo.day} ${hijriInfo.monthName} ${hijriInfo.year}`
+      ? hijriInfo.label
       : "",
     loading,
   };
