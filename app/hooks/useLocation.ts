@@ -3,6 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { findNearestLocation } from "../lib/prayerTimesSource";
 import { AUTO_DETECT_LOCATIONS, JAKIM_LOCATIONS } from "../constants/jakimZones";
+import {
+  getBrowserStorage,
+  loadStoredLocation,
+  saveStoredLocation,
+  type StoredLocation,
+} from "../lib/locationStorage";
 
 export interface Location {
   latitude: number;
@@ -19,6 +25,13 @@ export function useLocation() {
   const [location, setLocation] = useState<Location | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const storage = getBrowserStorage();
+
+  const applyLocation = useCallback((nextLocation: StoredLocation) => {
+    setLocation(nextLocation);
+    saveStoredLocation(storage, nextLocation);
+    setError(null);
+  }, [storage]);
 
   const requestLocation = useCallback(() => {
     setLoading(true);
@@ -36,7 +49,7 @@ export function useLocation() {
         const longitude = position.coords.longitude;
         const nearestLocation = findNearestLocation(latitude, longitude, AUTO_DETECT_LOCATIONS);
 
-        setLocation({
+        applyLocation({
           latitude,
           longitude,
           city: nearestLocation?.city,
@@ -68,10 +81,10 @@ export function useLocation() {
         maximumAge: 0,
       }
     );
-  }, []);
+  }, [applyLocation]);
 
   const setManualLocation = useCallback((locationData: typeof malaysianLocations[0]) => {
-    setLocation({
+    applyLocation({
       latitude: locationData.latitude,
       longitude: locationData.longitude,
       city: locationData.city,
@@ -79,13 +92,18 @@ export function useLocation() {
       zone: locationData.zone,
       method: "manual",
     });
-    setError(null);
-  }, []);
+  }, [applyLocation]);
 
   useEffect(() => {
-    // Try to get location on mount
+    const storedLocation = loadStoredLocation(storage);
+    if (storedLocation) {
+      setLocation(storedLocation);
+      setLoading(false);
+      return;
+    }
+
     requestLocation();
-  }, [requestLocation]);
+  }, [requestLocation, storage]);
 
   return {
     location,

@@ -17,7 +17,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const { location, error, loading, requestLocation, setManualLocation } = useLocation();
-  const [showLocationSelector, setShowLocationSelector] = useState(true);
+  const [hasManuallyOpenedSelector, setHasManuallyOpenedSelector] = useState(false);
+  const showLocationSelector = !location || hasManuallyOpenedSelector;
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -37,7 +38,7 @@ export default function Home() {
               className="min-h-screen flex items-center justify-center px-4 py-20"
             >
               <LocationSelector
-                onLocationSelected={() => setShowLocationSelector(false)}
+                onLocationSelected={() => setHasManuallyOpenedSelector(false)}
                 location={location}
                 error={error}
                 loading={loading}
@@ -56,7 +57,7 @@ export default function Home() {
               <div className="fixed top-4 right-4 z-50">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
-                  onClick={() => setShowLocationSelector(true)}
+                  onClick={() => setHasManuallyOpenedSelector(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-[#004D40]/80 border border-[#FFB300]/30 rounded-full text-[#FFF8E1] text-sm backdrop-blur-sm"
                 >
                   <svg
