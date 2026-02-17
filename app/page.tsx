@@ -12,6 +12,7 @@ import DailyDuaSection from "./sections/DailyDuaSection";
 import DailyQuranSection from "./sections/DailyQuranSection";
 import TasbeehSection from "./sections/TasbeehSection";
 import InstallAppSection from "./sections/InstallAppSection";
+import PrayerNotificationSection from "./sections/PrayerNotificationSection";
 import { useLocation } from "./hooks/useLocation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -95,6 +96,7 @@ export default function Home() {
               <DailyQuranSection />
               <TasbeehSection />
               <InstallAppSection />
+              <PrayerNotificationSection location={location} />
               <Footer />
             </motion.div>
           )}
