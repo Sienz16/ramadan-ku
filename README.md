@@ -112,6 +112,32 @@ The same scheduled worker also sends special push messages on:
 - Android: works after user grants push permission.
 - iOS: user must install the PWA to Home Screen first (iOS 16.4+) and then allow notifications.
 
+### Manual push test commands
+
+You can send a manual push from the server terminal:
+
+```bash
+npm run push:test -- --all
+```
+
+Target specific zone:
+
+```bash
+npm run push:test -- --zone=WLY01
+```
+
+Target one endpoint:
+
+```bash
+npm run push:test -- --endpoint=https://example.push/abc
+```
+
+Optional custom message:
+
+```bash
+npm run push:test -- --zone=WLY01 --title="Ujian" --body="Ini notifikasi ujian"
+```
+
 ## Localization
 
 The interface is primarily in Bahasa Melayu with Arabic and English support in selected UI labels and content.
