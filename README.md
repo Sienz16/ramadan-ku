@@ -11,6 +11,7 @@ Ramadan Ku is a Malaysia-focused Ramadan companion web app built with Next.js. I
 - Daily dua and daily Quran verse cards (Arabic, transliteration/translation)
 - Built-in digital tasbeeh counter (33-count rounds)
 - Mobile-first UI with animations and PWA metadata/manifest support
+- Background prayer push notifications (Web Push + PostgreSQL + scheduled worker)
 
 ## Tech Stack
 
@@ -19,6 +20,8 @@ Ramadan Ku is a Malaysia-focused Ramadan companion web app built with Next.js. I
 - TypeScript
 - Tailwind CSS 4
 - Framer Motion
+- PostgreSQL (`pg`) for push subscriptions and delivery logs
+- Web Push (`web-push`) for background notifications
 
 ## Project Structure
 
@@ -65,9 +68,44 @@ npm run start
 
 ## Data Sources and Notes
 
-- Prayer times and Hijri conversion use [Aladhan API](https://aladhan.com/prayer-times-api).
+- Prayer times and Hijri conversion use JAKIM e-Solat API.
 - Ramadan date windows are currently hardcoded for 2025-2028 in `app/hooks/useCountdown.ts`.
-- No backend is required; app behavior is primarily client-side.
+
+## Push Notification Setup
+
+### 1) Required environment variables
+
+Set these in Dokploy (web service + worker service):
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` - VAPID public key
+- `PUSH_VAPID_PRIVATE_KEY` - VAPID private key
+- `PUSH_VAPID_SUBJECT` - mailto URL, e.g. `mailto:admin@example.com`
+
+Generate VAPID keys once:
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+### 2) Apply database schema
+
+Run SQL in `docs/sql/push_notifications.sql` on your PostgreSQL database.
+
+### 3) Run scheduled sender
+
+Create a Dokploy worker/cron service that runs every minute:
+
+```bash
+npm run push:send-due
+```
+
+This checks current Kuala Lumpur minute and sends due prayer push notifications.
+
+### 4) Platform behavior
+
+- Android: works after user grants push permission.
+- iOS: user must install the PWA to Home Screen first (iOS 16.4+) and then allow notifications.
 
 ## Localization
 

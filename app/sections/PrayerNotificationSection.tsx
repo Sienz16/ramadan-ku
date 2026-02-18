@@ -2,8 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { usePrayerTimes } from "../hooks/usePrayerTimes";
-import { shouldTriggerPrayerNotification } from "../lib/prayerNotification";
+import {
+  isPushSupported,
+  sendTestPushToCurrentDevice,
+  subscribeDeviceToPush,
+  unsubscribeDeviceFromPush,
+} from "../lib/webPushClient";
 
 interface PrayerNotificationSectionProps {
   location?: {
@@ -16,15 +20,6 @@ interface PrayerNotificationSectionProps {
 }
 
 const ENABLED_STORAGE_KEY = "ramadanku:prayer-notify-enabled";
-const LAST_SENT_STORAGE_KEY = "ramadanku:prayer-notify-last-key";
-
-const prayerNamesMs: Record<string, string> = {
-  Fajr: "Subuh",
-  Dhuhr: "Zohor",
-  Asr: "Asar",
-  Maghrib: "Maghrib",
-  Isha: "Isyak",
-};
 
 function canUseBrowserApis(): boolean {
   return typeof window !== "undefined";
@@ -39,19 +34,7 @@ function readStorage(key: string): string | null {
 }
 
 export default function PrayerNotificationSection({ location }: PrayerNotificationSectionProps) {
-  const { prayers } = usePrayerTimes(
-    location
-      ? {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          city: location.city,
-          state: location.state,
-          zone: location.zone,
-        }
-      : null
-  );
-
-  const [supported] = useState(() => canUseBrowserApis() && "Notification" in window);
+  const [supported] = useState(() => canUseBrowserApis() && isPushSupported());
   const [permission, setPermission] = useState<NotificationPermission>(() => {
     if (!canUseBrowserApis() || !("Notification" in window)) {
       return "default";
@@ -60,8 +43,8 @@ export default function PrayerNotificationSection({ location }: PrayerNotificati
     return Notification.permission;
   });
   const [enabled, setEnabled] = useState(() => readStorage(ENABLED_STORAGE_KEY) === "1");
-  const [lastSentKey, setLastSentKey] = useState<string | null>(() => readStorage(LAST_SENT_STORAGE_KEY));
   const [feedback, setFeedback] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
 
   const canRunNotification = useMemo(
     () => supported && permission === "granted" && enabled,
@@ -69,46 +52,12 @@ export default function PrayerNotificationSection({ location }: PrayerNotificati
   );
 
   useEffect(() => {
-    if (!canRunNotification || prayers.length === 0) {
+    if (!supported || !("Notification" in window)) {
       return;
     }
 
-    const tick = () => {
-      const result = shouldTriggerPrayerNotification({
-        enabled,
-        permission,
-        prayers,
-        now: new Date(),
-        lastSentKey,
-      });
-
-      if (!result) {
-        return;
-      }
-
-      const prayerLabel = prayerNamesMs[result.prayer.name] ?? result.prayer.name;
-
-      try {
-        new Notification("Waktu solat telah masuk", {
-          body: `${prayerLabel} (${result.prayer.time12h})`,
-          icon: "/icons/icon-192.png",
-          tag: result.key,
-        });
-      } catch {
-        return;
-      }
-
-      setLastSentKey(result.key);
-      window.localStorage.setItem(LAST_SENT_STORAGE_KEY, result.key);
-    };
-
-    tick();
-    const timer = window.setInterval(tick, 15000);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [canRunNotification, enabled, lastSentKey, permission, prayers]);
+    setPermission(Notification.permission);
+  }, [supported]);
 
   const handleEnable = async () => {
     if (!supported || typeof window === "undefined") {
@@ -123,9 +72,18 @@ export default function PrayerNotificationSection({ location }: PrayerNotificati
     }
 
     if (nextPermission === "granted") {
-      setEnabled(true);
-      window.localStorage.setItem(ENABLED_STORAGE_KEY, "1");
-      setFeedback("Notifikasi diaktifkan. Anda akan diberitahu bila waktu solat masuk.");
+      try {
+        await subscribeDeviceToPush({
+          zone: location?.zone,
+          city: location?.city,
+        });
+
+        setEnabled(true);
+        window.localStorage.setItem(ENABLED_STORAGE_KEY, "1");
+        setFeedback("Notifikasi latar belakang diaktifkan. Anda akan diberitahu walaupun app ditutup.");
+      } catch {
+        setFeedback("Gagal aktifkan notifikasi push. Sila cuba lagi.");
+      }
       return;
     }
 
@@ -137,9 +95,25 @@ export default function PrayerNotificationSection({ location }: PrayerNotificati
       return;
     }
 
-    setEnabled(false);
-    window.localStorage.removeItem(ENABLED_STORAGE_KEY);
-    setFeedback("Notifikasi dimatikan.");
+    unsubscribeDeviceFromPush()
+      .catch(() => undefined)
+      .finally(() => {
+        setEnabled(false);
+        window.localStorage.removeItem(ENABLED_STORAGE_KEY);
+        setFeedback("Notifikasi dimatikan.");
+      });
+  };
+
+  const handleSendTest = async () => {
+    setSendingTest(true);
+    try {
+      await sendTestPushToCurrentDevice();
+      setFeedback("Notifikasi ujian dihantar. Semak notification bar peranti anda.");
+    } catch {
+      setFeedback("Gagal hantar notifikasi ujian.");
+    } finally {
+      setSendingTest(false);
+    }
   };
 
   return (
@@ -156,11 +130,11 @@ export default function PrayerNotificationSection({ location }: PrayerNotificati
             Mahu notifikasi bila waktu solat masuk?
           </h3>
           <p className="text-[#FFF8E1]/65 text-sm mt-3">
-            Klik aktifkan untuk dapatkan alert &quot;waktu solat telah masuk&quot; terus pada peranti anda.
+            Klik aktifkan untuk dapatkan notifikasi push pada notification bar peranti anda walaupun app tidak dibuka.
           </p>
 
           {!supported ? (
-            <p className="text-[#FFF8E1]/60 text-sm mt-5">Browser ini tidak menyokong Notification API.</p>
+            <p className="text-[#FFF8E1]/60 text-sm mt-5">Peranti/browser ini tidak menyokong Push Notification.</p>
           ) : (
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               {!enabled ? (
@@ -176,6 +150,14 @@ export default function PrayerNotificationSection({ location }: PrayerNotificati
                   <span className="px-3 py-1 rounded-full text-xs border border-emerald-300/40 text-emerald-200">
                     Aktif
                   </span>
+                  <button
+                    type="button"
+                    onClick={handleSendTest}
+                    disabled={sendingTest || !canRunNotification}
+                    className="px-4 py-2 rounded-xl border border-emerald-300/40 text-emerald-200 disabled:opacity-60"
+                  >
+                    {sendingTest ? "Menghantar..." : "Hantar notifikasi ujian"}
+                  </button>
                   <button
                     type="button"
                     onClick={handleDisable}
