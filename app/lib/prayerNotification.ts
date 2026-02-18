@@ -1,3 +1,5 @@
+import { getKualaLumpurDateKey, getKualaLumpurTimeKey } from "./timezone";
+
 export interface NotificationPrayer {
   name: string;
   time: string;
@@ -14,27 +16,12 @@ interface ShouldTriggerInput {
 
 const NON_SOLAT_NAMES = new Set(["Sunrise"]);
 
-function formatDateKey(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatTimeKey(date: Date): string {
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${hours}:${minutes}`;
-}
-
 export function buildPrayerNotificationKey(now: Date, prayerName: string): string {
-  return `${formatDateKey(now)}|${prayerName}`;
+  return `${getKualaLumpurDateKey(now)}|${prayerName}`;
 }
 
 export function findPrayerToNotify(prayers: NotificationPrayer[], now: Date): NotificationPrayer | null {
-  const currentTime = formatTimeKey(now);
+  const currentTime = getKualaLumpurTimeKey(now);
 
   const prayer = prayers.find((item) => item.time === currentTime && !NON_SOLAT_NAMES.has(item.name));
   return prayer ?? null;

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { formatHijriDateFromJakim } from "../lib/prayerTimesSource";
 import { deriveRamadanStatus, type HijriInfo, type JakimCalendarEntry } from "../lib/ramadanCountdown";
+import { getKualaLumpurYear } from "../lib/timezone";
 
 interface CountdownResult {
   days: number;
@@ -97,7 +98,7 @@ export function useCountdown(zone?: string): CountdownResult {
     const fetchHijri = async () => {
       try {
         const activeZone = zone ?? DEFAULT_ZONE;
-        const currentYear = new Date().getUTCFullYear();
+        const currentYear = getKualaLumpurYear(new Date());
 
         const [hijriData, thisYearEntries, nextYearEntries] = await Promise.all([
           fetchHijriDate(activeZone),

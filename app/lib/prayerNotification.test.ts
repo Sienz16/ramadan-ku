@@ -14,13 +14,13 @@ const prayers: NotificationPrayer[] = [
 
 describe("findPrayerToNotify", () => {
   test("returns prayer when current minute matches prayer time", () => {
-    const now = new Date(2026, 1, 17, 5, 55, 20);
+    const now = new Date("2026-02-17T05:55:20+08:00");
 
     expect(findPrayerToNotify(prayers, now)?.name).toBe("Fajr");
   });
 
   test("skips non-solat entries like Sunrise", () => {
-    const now = new Date(2026, 1, 17, 7, 0, 0);
+    const now = new Date("2026-02-17T07:00:00+08:00");
 
     expect(findPrayerToNotify(prayers, now)).toBeNull();
   });
@@ -28,7 +28,7 @@ describe("findPrayerToNotify", () => {
 
 describe("shouldTriggerPrayerNotification", () => {
   test("triggers once when enabled and permission granted", () => {
-    const now = new Date(2026, 1, 17, 13, 15, 10);
+    const now = new Date("2026-02-17T13:15:10+08:00");
 
     const result = shouldTriggerPrayerNotification({
       enabled: true,
@@ -43,7 +43,7 @@ describe("shouldTriggerPrayerNotification", () => {
   });
 
   test("does not trigger again for same prayer/day key", () => {
-    const now = new Date(2026, 1, 17, 13, 15, 50);
+    const now = new Date("2026-02-17T13:15:50+08:00");
     const lastSentKey = buildPrayerNotificationKey(now, "Dhuhr");
 
     const result = shouldTriggerPrayerNotification({
@@ -58,7 +58,7 @@ describe("shouldTriggerPrayerNotification", () => {
   });
 
   test("does not trigger when permission is denied", () => {
-    const now = new Date(2026, 1, 17, 5, 55, 0);
+    const now = new Date("2026-02-17T05:55:00+08:00");
 
     const result = shouldTriggerPrayerNotification({
       enabled: true,

@@ -1,3 +1,5 @@
+import { getKualaLumpurDateParts } from "../lib/timezone";
+
 export interface Dua {
   id: number;
   arabic: string;
@@ -193,9 +195,8 @@ export const dailyDuas: Dua[] = [
   },
 ];
 
-export function getDailyDua(): Dua {
-  const today = new Date();
-  const dayOfMonth = today.getDate();
+export function getDailyDua(today: Date = new Date()): Dua {
+  const dayOfMonth = getKualaLumpurDateParts(today).day;
   const index = (dayOfMonth - 1) % dailyDuas.length;
   return dailyDuas[index];
 }

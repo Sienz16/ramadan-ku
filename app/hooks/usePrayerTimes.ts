@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { mapJakimTimingsToCorePrayers, resolveZone } from "../lib/prayerTimesSource";
+import { getKualaLumpurClock } from "../lib/timezone";
 import { malaysianLocations } from "./useLocation";
 
 export interface PrayerTime {
@@ -166,8 +167,7 @@ export function usePrayerTimes(location: Location | null) {
   const prayersWithStatus = useMemo(() => {
     if (prayerTimes.length === 0) return [];
 
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+    const { hour: currentHour, minute: currentMinute } = getKualaLumpurClock(now);
     const currentTime = currentHour * 60 + currentMinute;
 
     let nextPrayerIndex = -1;
@@ -207,17 +207,18 @@ export function usePrayerTimes(location: Location | null) {
   const timeUntilNext = useMemo(() => {
     if (!now || !nextPrayer) return "";
 
+    const { hour: currentHour, minute: currentMinute } = getKualaLumpurClock(now);
+    const currentTime = currentHour * 60 + currentMinute;
     const [hour, minute] = nextPrayer.time.split(":").map(Number);
-    const nextTime = new Date(now);
-    nextTime.setHours(hour, minute, 0, 0);
+    const nextPrayerTime = hour * 60 + minute;
+    let diffMinutes = nextPrayerTime - currentTime;
 
-    if (nextTime < now) {
-      nextTime.setDate(nextTime.getDate() + 1);
+    if (diffMinutes < 0) {
+      diffMinutes += 24 * 60;
     }
 
-    const diff = nextTime.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
 
     return `${hours}j ${minutes}m`;
   }, [now, nextPrayer]);

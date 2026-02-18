@@ -1,12 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { dailyVerses } from "../data/quran";
+import { getDailyVerse } from "../data/quran";
 
 export default function DailyQuranSection() {
-  const today = new Date();
-  const currentIndex = (today.getDate() - 1) % dailyVerses.length;
-  const verse = dailyVerses[currentIndex];
+  const verse = getDailyVerse();
 
   return (
     <section className="relative py-20 px-6 sm:px-8 lg:px-16 xl:px-24">

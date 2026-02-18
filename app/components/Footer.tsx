@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { getKualaLumpurYear } from "../lib/timezone";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  const currentYear = getKualaLumpurYear(new Date());
 
   return (
     <footer className="relative py-12 px-6 sm:px-8 lg:px-16 xl:px-24 border-t border-[#FFB300]/20">

@@ -10,6 +10,20 @@ function buildEntry(date: string, hijri: string): JakimCalendarEntry {
 }
 
 describe("deriveRamadanStatus", () => {
+  test("treats Ramadan start day in Kuala Lumpur as day zero after local midnight", () => {
+    const now = new Date("2026-02-18T00:30:00+08:00");
+    const hijriInfo: HijriInfo = { month: 8, day: 29, year: "1447", label: "29 Sya'ban 1447" };
+    const calendar = [
+      buildEntry("18-Feb-2026", "1447-09-01"),
+      buildEntry("20-Mar-2026", "1447-10-01"),
+    ];
+
+    const status = deriveRamadanStatus(now, hijriInfo, calendar);
+
+    expect(status.isRamadan).toBe(false);
+    expect(status.daysUntilRamadan).toBe(0);
+  });
+
   test("uses next Ramadan date from JAKIM calendar before Ramadan", () => {
     const now = new Date("2026-02-16T12:00:00+08:00");
     const hijriInfo: HijriInfo = { month: 8, day: 28, year: "1447", label: "28 Sya'ban 1447" };
@@ -23,7 +37,7 @@ describe("deriveRamadanStatus", () => {
 
     expect(status.isRamadan).toBe(false);
     expect(status.daysUntilRamadan).toBe(2);
-    expect(status.targetDate?.toISOString()).toBe("2026-02-18T00:00:00.000Z");
+    expect(status.targetDate?.toISOString()).toBe("2026-02-17T16:00:00.000Z");
   });
 
   test("uses Syawal start from JAKIM calendar during Ramadan", () => {
@@ -38,7 +52,7 @@ describe("deriveRamadanStatus", () => {
 
     expect(status.isRamadan).toBe(true);
     expect(status.daysInRamadan).toBe(12);
-    expect(status.targetDate?.toISOString()).toBe("2026-03-20T00:00:00.000Z");
+    expect(status.targetDate?.toISOString()).toBe("2026-03-19T16:00:00.000Z");
   });
 
   test("uses next-year Ramadan when current year Ramadan already passed", () => {
@@ -52,7 +66,7 @@ describe("deriveRamadanStatus", () => {
     const status = deriveRamadanStatus(now, hijriInfo, calendar);
 
     expect(status.isRamadan).toBe(false);
-    expect(status.targetDate?.toISOString()).toBe("2027-02-07T00:00:00.000Z");
+    expect(status.targetDate?.toISOString()).toBe("2027-02-06T16:00:00.000Z");
     expect(status.daysUntilRamadan).toBeGreaterThan(0);
   });
 });

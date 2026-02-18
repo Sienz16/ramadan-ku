@@ -1,12 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { dailyDuas } from "../data/duas";
+import { getDailyDua } from "../data/duas";
 
 export default function DailyDuaSection() {
-  const today = new Date();
-  const currentIndex = (today.getDate() - 1) % dailyDuas.length;
-  const dua = dailyDuas[currentIndex];
+  const dua = getDailyDua();
 
   return (
     <section className="relative py-20 px-6 sm:px-8 lg:px-16 xl:px-24">

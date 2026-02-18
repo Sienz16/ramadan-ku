@@ -1,3 +1,5 @@
+import { getKualaLumpurDateParts } from "../lib/timezone";
+
 export interface QuranVerse {
   id: number;
   surah: string;
@@ -250,9 +252,8 @@ export const dailyVerses: QuranVerse[] = [
   },
 ];
 
-export function getDailyVerse(): QuranVerse {
-  const today = new Date();
-  const dayOfMonth = today.getDate();
+export function getDailyVerse(today: Date = new Date()): QuranVerse {
+  const dayOfMonth = getKualaLumpurDateParts(today).day;
   const index = (dayOfMonth - 1) % dailyVerses.length;
   return dailyVerses[index];
 }

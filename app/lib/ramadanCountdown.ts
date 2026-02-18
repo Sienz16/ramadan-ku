@@ -1,3 +1,5 @@
+import { getKualaLumpurDateParts, toKualaLumpurMidnightUtc } from "./timezone";
+
 export interface HijriInfo {
   month: number;
   day: number;
@@ -46,7 +48,7 @@ function parseJakimDate(value: string): Date | null {
     return null;
   }
 
-  return new Date(Date.UTC(year, month, day));
+  return toKualaLumpurMidnightUtc(year, month + 1, day);
 }
 
 function parseHijri(value: string): { month: number; day: number } | null {
@@ -65,8 +67,9 @@ function parseHijri(value: string): { month: number; day: number } | null {
   return { month, day };
 }
 
-function startOfUtcDay(value: Date): Date {
-  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+function startOfKualaLumpurDay(value: Date): Date {
+  const parts = getKualaLumpurDateParts(value);
+  return toKualaLumpurMidnightUtc(parts.year, parts.month, parts.day);
 }
 
 function findNextHijriDate(
@@ -75,7 +78,7 @@ function findNextHijriDate(
   targetMonth: number,
   targetDay: number
 ): Date | null {
-  const nowDay = startOfUtcDay(now).getTime();
+  const nowDay = startOfKualaLumpurDay(now).getTime();
 
   const candidates = entries
     .map((entry) => {
@@ -104,7 +107,7 @@ export function deriveRamadanStatus(
   hijriInfo: HijriInfo | null,
   entries: JakimCalendarEntry[]
 ): DerivedRamadanStatus {
-  const todayUtc = startOfUtcDay(now);
+  const todayKualaLumpur = startOfKualaLumpurDay(now);
   const isRamadan = hijriInfo?.month === 9;
 
   if (isRamadan) {
@@ -127,7 +130,7 @@ export function deriveRamadanStatus(
     };
   }
 
-  const diff = nextRamadan.getTime() - todayUtc.getTime();
+  const diff = nextRamadan.getTime() - todayKualaLumpur.getTime();
   const daysUntilRamadan = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 
   return {
