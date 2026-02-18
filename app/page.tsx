@@ -8,6 +8,7 @@ import LocationSelector from "./components/LocationSelector";
 import HeroSection from "./sections/HeroSection";
 import PrayerTimesSection from "./sections/PrayerTimesSection";
 import SuhoorIftarSection from "./sections/SuhoorIftarSection";
+import RamadanPrayersSection from "./sections/RamadanPrayersSection";
 import DailyDuaSection from "./sections/DailyDuaSection";
 import DailyQuranSection from "./sections/DailyQuranSection";
 import TasbeehSection from "./sections/TasbeehSection";
@@ -92,6 +93,7 @@ export default function Home() {
               <HeroSection location={location} />
               <PrayerTimesSection location={location} />
               <SuhoorIftarSection location={location} />
+              <RamadanPrayersSection />
               <DailyDuaSection />
               <DailyQuranSection />
               <TasbeehSection />
