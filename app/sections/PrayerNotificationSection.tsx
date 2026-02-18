@@ -146,26 +146,26 @@ export default function PrayerNotificationSection({ location }: PrayerNotificati
                   Ya, aktifkan notifikasi
                 </button>
               ) : (
-                <>
-                  <span className="px-3 py-1 rounded-full text-xs border border-emerald-300/40 text-emerald-200">
+                <div className="w-full max-w-xs flex flex-col items-center gap-3 mx-auto">
+                  <span className="w-full px-5 py-2 rounded-none md:rounded-full text-sm md:text-xs border border-emerald-300/40 text-emerald-200">
                     Aktif
                   </span>
                   <button
                     type="button"
                     onClick={handleSendTest}
                     disabled={sendingTest || !canRunNotification}
-                    className="px-4 py-2 rounded-xl border border-emerald-300/40 text-emerald-200 disabled:opacity-60"
+                    className="w-full px-4 py-2 rounded-xl border border-emerald-300/40 text-emerald-200 disabled:opacity-60"
                   >
-                    {sendingTest ? "Menghantar..." : "Hantar notifikasi ujian"}
+                    {sendingTest ? "Menghantar..." : "Uji Notifikasi"}
                   </button>
                   <button
                     type="button"
                     onClick={handleDisable}
-                    className="px-4 py-2 rounded-xl border border-[#FFB300]/40 text-[#FFD54F]"
+                    className="w-full px-4 py-2 rounded-xl border border-[#FFB300]/40 text-[#FFD54F]"
                   >
-                    Matikan
+                    Matikan Notifikasi
                   </button>
-                </>
+                </div>
               )}
             </div>
           )}

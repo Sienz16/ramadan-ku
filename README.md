@@ -78,7 +78,8 @@ npm run start
 Set these in Dokploy (web service + worker service):
 
 - `DATABASE_URL` - PostgreSQL connection string
-- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` - VAPID public key
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` - VAPID public key (build-time for browser)
+- `PUSH_VAPID_PUBLIC_KEY` - VAPID public key (runtime for worker/API)
 - `PUSH_VAPID_PRIVATE_KEY` - VAPID private key
 - `PUSH_VAPID_SUBJECT` - mailto URL, e.g. `mailto:admin@example.com`
 
@@ -101,6 +102,10 @@ npm run push:send-due
 ```
 
 This checks current Kuala Lumpur minute and sends due prayer push notifications.
+
+The same scheduled worker also sends special push messages on:
+- 1 Ramadan (Ramadan start)
+- 1 Syawal (Aidilfitri greeting)
 
 ### 4) Platform behavior
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildDeliveryKey, findDuePrayerName } from "./pushScheduler";
+import { buildDeliveryKey, findDuePrayerName, resolveRamadanEventFromHijri } from "./pushScheduler";
 
 describe("findDuePrayerName", () => {
   test("returns prayer when current Kuala Lumpur minute matches", () => {
@@ -40,5 +40,25 @@ describe("buildDeliveryKey", () => {
     const key = buildDeliveryKey("2026-03-01", "WLY01", "Maghrib");
 
     expect(key).toBe("2026-03-01|WLY01|Maghrib");
+  });
+});
+
+describe("resolveRamadanEventFromHijri", () => {
+  test("returns RAMADAN_START for 1 Ramadan", () => {
+    const event = resolveRamadanEventFromHijri("1447-09-01");
+
+    expect(event).toBe("RAMADAN_START");
+  });
+
+  test("returns EID_START for 1 Syawal", () => {
+    const event = resolveRamadanEventFromHijri("1447-10-01");
+
+    expect(event).toBe("EID_START");
+  });
+
+  test("returns null for non-boundary Hijri date", () => {
+    const event = resolveRamadanEventFromHijri("1447-09-12");
+
+    expect(event).toBeNull();
   });
 });

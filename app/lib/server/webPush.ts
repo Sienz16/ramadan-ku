@@ -20,11 +20,11 @@ export function buildPrayerPushPayload(input: NotificationPayloadInput): string 
 
 function loadVapidConfig() {
   const subject = process.env.PUSH_VAPID_SUBJECT;
-  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const publicKey = process.env.PUSH_VAPID_PUBLIC_KEY ?? process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.PUSH_VAPID_PRIVATE_KEY;
 
   if (!subject || !publicKey || !privateKey) {
-    throw new Error("Missing VAPID env vars");
+    throw new Error("Missing VAPID env vars: PUSH_VAPID_SUBJECT, PUSH_VAPID_PRIVATE_KEY, and PUSH_VAPID_PUBLIC_KEY (or NEXT_PUBLIC_VAPID_PUBLIC_KEY)");
   }
 
   return { subject, publicKey, privateKey };
